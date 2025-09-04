@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -57,6 +58,15 @@ public class SelectorListener implements Listener {
     public void onInventoryDrag(InventoryDragEvent event) {
         if (selector.isSelectorItem(event.getOldCursor())) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (selector.isSelectorItem(event.getItemInHand())) {
+            event.setCancelled(true);
+            event.setBuild(false);
+            event.getPlayer().updateInventory();
         }
     }
 

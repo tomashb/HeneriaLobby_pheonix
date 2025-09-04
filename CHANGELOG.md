@@ -14,3 +14,11 @@
 ### 🎨 Améliorations
 - Correction de la disposition des bordures dans le GUI pour une fidélité parfaite avec la maquette.
 - Ajout d'un effet d'enchantement visuel sur l'item "Bedwars" pour indiquer son statut populaire.
+
+## [1.3.0] - Finitions et Améliorations de l'Expérience
+### 🎨 Améliorations
+- Ajustement final de la disposition des bordures et des items dans le GUI.
+- Mise en forme finale des titres des jeux (gras, majuscules, tags).
+- Changement de la couleur du titre du menu.
+### 🛡️ Protections
+- Il est désormais impossible de poser l'item du sélecteur de jeux. L'événement de placement est annulé.

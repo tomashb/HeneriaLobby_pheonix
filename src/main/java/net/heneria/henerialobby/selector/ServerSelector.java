@@ -14,6 +14,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -135,6 +137,10 @@ public class ServerSelector {
             meta.setLore(lore.stream()
                     .map(line -> color(plugin.applyPlaceholders(player, line)))
                     .collect(Collectors.toList()));
+        }
+        if (cs.getBoolean("enchanted", false)) {
+            meta.addEnchant(Enchantment.DURABILITY, 1, true);
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
         item.setItemMeta(meta);
         return item;

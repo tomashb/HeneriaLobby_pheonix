@@ -10,14 +10,24 @@ selector-item:
   # Texture Base64 pour la tête "Terre"
   texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6InRlc3QifX19"
 
+# Mondes considérés comme des lobbys
+lobby-worlds:
+  - 'lobby'
+  - 'world'
+
 protection:
   # Activer ou désactiver toutes les protections du lobby
   enabled: true
 
-  # Les protections ne seront actives que dans les mondes listés ici
-  lobby-worlds:
-    - 'lobby'
-    - 'world'
-
   # Bloquer le temps à une valeur fixe (6000 = midi)
   lock-time-to: 6000
+
+scoreboard:
+  enabled: true
+  # Intervalle de rafraîchissement en ticks (20 ticks = 1 seconde)
+  update-interval: 40
+
+tablist:
+  enabled: true
+  # Intervalle de rafraîchissement en ticks (20 ticks = 1 seconde)
+  update-interval: 40

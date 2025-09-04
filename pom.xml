@@ -4,7 +4,7 @@
 
     <groupId>net.heneria</groupId>
     <artifactId>HeneriaLobby</artifactId>
-    <version>1.6.0</version>
+    <version>1.9.0</version>
     <packaging>jar</packaging>
 
     <properties>

@@ -11,6 +11,7 @@ Plugin de lobby central pour le réseau Heneria.
 * **Contrôle de l'Environnement :** Maintient un temps clair et un jour permanent dans les mondes du lobby.
 * **Affichages Personnalisés :** Configurez un scoreboard et une Tablist uniques avec des informations dynamiques. Le scoreboard est conçu pour afficher le rang (via LuckPerms), les monnaies, et le nombre total de joueurs sur le réseau.
 * **Interactivité :** Améliorez l'expérience des joueurs avec des plaques de saut, un sélecteur de visibilité et des messages de bienvenue personnalisés.
+* **Effets de Connexion :** Offrez des effets cosmétiques (sons, particules, feux d'artifice) uniques aux joueurs à leur connexion, avec des effets différents pour chaque grade.
 
 ## Commandes et Permissions
 
@@ -21,6 +22,7 @@ Plugin de lobby central pour le réseau Heneria.
 | `/servers`  | (Aucune)              | Ouvre le menu de sélection des serveurs.   |
 | (Bypass)    | `heneria.lobby.bypass.protection`| Ignore toutes les protections du lobby.   |
 | (Visibilité)| `heneria.lobby.canbeseen`        | Permet d'être vu par les autres joueurs en mode "VIPs". |
+| (Effets)    | `heneria.lobby.joineffect.<nom>` | Déclenche l'effet de connexion `<nom>`.        |
 
 ## Dépendances
 

@@ -1,15 +1,15 @@
-menu-title: '&6Menu des jeux'
+menu-title: '&7Menu des jeux'
 menu-size: 6
 items:
   border-glass:
     material: ORANGE_STAINED_GLASS_PANE
     name: ' '
-    slots: [1, 2, 8, 9, 10, 18, 46, 47, 52, 53]
+    slots: [0, 1, 7, 8, 9, 17, 45, 46, 52, 53]
 
   bedwars:
     slot: 13
     material: RED_BED
-    name: '&6&lBEDWARS &7| &aPOPULAIRE'
+    name: '&6&lBEDWARS &7| &a&lPOPULAIRE'
     enchanted: true
     lore:
       - ''
@@ -23,6 +23,23 @@ items:
       - ''
       - '&b▶ Cliquez pour jouer !'
     action: 'server:bedwars'
+
+  zombie:
+    slot: 21
+    material: ZOMBIE_HEAD
+    name: '&2&lZOMBIE &7| &e&lBETA'
+    lore:
+      - ''
+      - '&6&lDescription'
+      - '&7Combattez des vagues de zombies'
+      - '&7et survivez le plus longtemps possible.'
+      - ''
+      - '&6&lInformations'
+      - '&eVersion: &f1.21+'
+      - '&eConnecté(s): &f%bungee_zombie%'
+      - ''
+      - '&b▶ Cliquez pour jouer !'
+    action: 'server:zombie'
 
   arena-pvp:
     slot: 22
@@ -43,9 +60,9 @@ items:
     action: 'server:pvp'
 
   nexus:
-    slot: 24
+    slot: 23
     material: END_CRYSTAL
-    name: '&5&lNEXUS &7| &bNOUVEAU'
+    name: '&5&lNEXUS &7| &b&lNOUVEAU'
     lore:
       - ''
       - '&6&lDescription'
@@ -58,20 +75,3 @@ items:
       - ''
       - '&b▶ Cliquez pour jouer !'
     action: 'server:nexus'
-
-  zombie:
-    slot: 31
-    material: ZOMBIE_HEAD
-    name: '&2&lZOMBIE &7| &eBETA'
-    lore:
-      - ''
-      - '&6&lDescription'
-      - '&7Combattez des vagues de zombies'
-      - '&7et survivez le plus longtemps possible.'
-      - ''
-      - '&6&lInformations'
-      - '&eVersion: &f1.21+'
-      - '&eConnecté(s): &f%bungee_zombie%'
-      - ''
-      - '&b▶ Cliquez pour jouer !'
-    action: 'server:zombie'

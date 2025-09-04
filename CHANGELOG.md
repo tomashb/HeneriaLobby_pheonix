@@ -9,3 +9,8 @@
 ## [1.2.2] - Formatage Final des Descriptions
 ### 🎨 Améliorations
 - Restructuration des descriptions des jeux dans le GUI pour séparer les sections "Description" et "Informations".
+
+## [1.2.4] - Ajustements Finaux du Design et de la Cosmétique
+### 🎨 Améliorations
+- Correction de la disposition des bordures dans le GUI pour une fidélité parfaite avec la maquette.
+- Ajout d'un effet d'enchantement visuel sur l'item "Bedwars" pour indiquer son statut populaire.

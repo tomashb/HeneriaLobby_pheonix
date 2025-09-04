@@ -1,6 +1,6 @@
 name: HeneriaLobby
 main: net.heneria.henerialobby.HeneriaLobby
-version: 1.5.0
+version: 1.6.0
 api-version: '1.21'
 author: Heneria
 description: Central lobby plugin for the Heneria network
@@ -20,3 +20,6 @@ permissions:
   heneria.lobby.admin:
     description: "Permet de configurer le spawn du lobby"
     default: op
+  heneria.lobby.canbeseen:
+    description: "Permet d'être vu en mode VIP."
+    default: false

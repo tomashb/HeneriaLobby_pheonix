@@ -4,3 +4,7 @@ spawn-not-set: "&cLe point de spawn du lobby n'a pas encore été configuré."
 no-permission: "&cVous n'avez pas la permission d'exécuter cette commande."
 player-only: "&cCette commande ne peut être exécutée que par un joueur."
 
+visibility-all: "&aVisibilité : Tous les joueurs."
+visibility-vips: "&eVisibilité : VIPs et Staff uniquement."
+visibility-none: "&7Visibilité : Personne."
+

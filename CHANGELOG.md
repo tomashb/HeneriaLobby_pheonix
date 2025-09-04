@@ -38,3 +38,10 @@
 - Ajout d'un header et footer de Tablist personnalisables.
 - Intégration complète avec PlaceholderAPI pour des affichages dynamiques, incluant les préfixes LuckPerms et le total de joueurs du réseau.
 - Ajout d'options dans `config.yml` pour activer/désactiver ces fonctionnalités.
+
+## [1.6.0] - Ajout de Fonctionnalités d'Expérience Joueur
+### ✨ Ajouts
+- Ajout de plaques de saut (Launchpads) configurables.
+- Ajout d'un système de visibilité des joueurs (Tous / VIPs / Personne) via un item.
+- Ajout de messages de connexion et de déconnexion personnalisables.
+- Ajout de la permission `heneria.lobby.canbeseen` pour être visible en mode VIP.

@@ -31,3 +31,28 @@ tablist:
   enabled: true
   # Intervalle de rafraîchissement en ticks (20 ticks = 1 seconde)
   update-interval: 40
+
+player-experience:
+  # Messages de connexion et de déconnexion personnalisés
+  join-leave-messages:
+    enabled: true
+    join: "&8[&a+&8] &7%player_name%"
+    leave: "&8[&c-&8] &7%player_name%"
+
+  # Gestion de la visibilité des joueurs
+  player-visibility:
+    enabled: true
+    item-slot: 8
+    # Matériau de l'item pour chaque état : TOUS, VIPs, PERSONNE
+    item-all: LIME_DYE
+    item-vips: YELLOW_DYE
+    item-none: GRAY_DYE
+
+  # Plaques de saut
+  launchpads:
+    enabled: true
+    plate-material: STONE_PRESSURE_PLATE
+    block-material: IRON_BLOCK
+    power-vertical: 1.8 # Force de la propulsion vers le haut
+    power-horizontal: 2.2 # Force de la propulsion vers l'avant
+    sound: ENTITY_BAT_TAKEOFF

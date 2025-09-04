@@ -9,7 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class HeneriaLobby extends JavaPlugin {
 
-    private static final MinecraftChannelIdentifier VELOCITY_CONNECT = MinecraftChannelIdentifier.from("velocity", "connect");
+    private static final MinecraftChannelIdentifier VELOCITY_CONNECT = MinecraftChannelIdentifier.from("velocity:connect");
 
     @Override
     public void onEnable() {

@@ -1,7 +1,6 @@
 package net.heneria.henerialobby;
 
 import com.google.common.io.ByteStreams;
-import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.heneria.henerialobby.command.LobbyCommand;
 import net.heneria.henerialobby.command.SetLobbyCommand;
@@ -20,7 +19,12 @@ import java.io.File;
 
 public class HeneriaLobby extends JavaPlugin {
 
-    private static final MinecraftChannelIdentifier VELOCITY_CONNECT = MinecraftChannelIdentifier.from("velocity:connect");
+    /**
+     * Channel used by Velocity to handle player connections. Using the raw
+     * string avoids a hard dependency on the Velocity API which caused the
+     * plugin to fail loading when the library was absent on the server.
+     */
+    private static final String VELOCITY_CONNECT = "velocity:connect";
 
     private SpawnManager spawnManager;
     private FileConfiguration messages;
@@ -43,7 +47,7 @@ public class HeneriaLobby extends JavaPlugin {
             getLogger().warning("PlaceholderAPI not found; placeholders disabled");
         }
 
-        this.getServer().getMessenger().registerOutgoingPluginChannel(this, VELOCITY_CONNECT.getId());
+        this.getServer().getMessenger().registerOutgoingPluginChannel(this, VELOCITY_CONNECT);
 
         getCommand("lobby").setExecutor(new LobbyCommand(this, spawnManager));
         getCommand("setlobby").setExecutor(new SetLobbyCommand(this, spawnManager));
@@ -54,13 +58,13 @@ public class HeneriaLobby extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.getServer().getMessenger().unregisterOutgoingPluginChannel(this, VELOCITY_CONNECT.getId());
+        this.getServer().getMessenger().unregisterOutgoingPluginChannel(this, VELOCITY_CONNECT);
     }
 
     public void sendPlayer(Player player, String server) {
         var out = ByteStreams.newDataOutput();
         out.writeUTF(server);
-        player.sendPluginMessage(this, VELOCITY_CONNECT.getId(), out.toByteArray());
+        player.sendPluginMessage(this, VELOCITY_CONNECT, out.toByteArray());
     }
 
     public String applyPlaceholders(Player player, String text) {

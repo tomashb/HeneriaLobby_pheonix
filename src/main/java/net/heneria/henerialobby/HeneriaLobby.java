@@ -9,10 +9,14 @@ import net.heneria.henerialobby.listener.SpawnListener;
 import net.heneria.henerialobby.listener.SelectorListener;
 import net.heneria.henerialobby.listener.ProtectionListener;
 import net.heneria.henerialobby.listener.DisplayListener;
+import net.heneria.henerialobby.listener.VisibilityListener;
+import net.heneria.henerialobby.listener.LaunchpadListener;
+import net.heneria.henerialobby.listener.JoinLeaveListener;
 import net.heneria.henerialobby.scoreboard.ScoreboardManager;
 import net.heneria.henerialobby.tablist.TablistManager;
 import net.heneria.henerialobby.selector.ServerSelector;
 import net.heneria.henerialobby.spawn.SpawnManager;
+import net.heneria.henerialobby.visibility.VisibilityManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -36,6 +40,7 @@ public class HeneriaLobby extends JavaPlugin {
     private FileConfiguration scoreboardConfig;
     private ScoreboardManager scoreboardManager;
     private TablistManager tablistManager;
+    private VisibilityManager visibilityManager;
     private java.util.Set<String> lobbyWorlds;
 
     @Override
@@ -69,6 +74,17 @@ public class HeneriaLobby extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new ProtectionListener(this), this);
         }
         Bukkit.getPluginManager().registerEvents(new DisplayListener(this), this);
+
+        if (getConfig().getBoolean("player-experience.player-visibility.enabled", true)) {
+            visibilityManager = new VisibilityManager(this);
+            Bukkit.getPluginManager().registerEvents(new VisibilityListener(this, visibilityManager), this);
+        }
+        if (getConfig().getBoolean("player-experience.launchpads.enabled", true)) {
+            Bukkit.getPluginManager().registerEvents(new LaunchpadListener(this), this);
+        }
+        if (getConfig().getBoolean("player-experience.join-leave-messages.enabled", true)) {
+            Bukkit.getPluginManager().registerEvents(new JoinLeaveListener(this), this);
+        }
 
         if (getConfig().getBoolean("scoreboard.enabled", true)) {
             scoreboardManager = new ScoreboardManager(this, scoreboardConfig);

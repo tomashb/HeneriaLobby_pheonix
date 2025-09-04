@@ -10,6 +10,7 @@ Plugin de lobby central pour le réseau Heneria.
 * **Protection Complète :** Un module de protection robuste empêche le grief, les dégâts, et verrouille l'inventaire des joueurs pour une expérience propre et sécurisée dans le lobby.
 * **Contrôle de l'Environnement :** Maintient un temps clair et un jour permanent dans les mondes du lobby.
 * **Affichages Personnalisés :** Configurez un scoreboard et une Tablist uniques avec des informations dynamiques. Le scoreboard est conçu pour afficher le rang (via LuckPerms), les monnaies, et le nombre total de joueurs sur le réseau.
+* **Interactivité :** Améliorez l'expérience des joueurs avec des plaques de saut, un sélecteur de visibilité et des messages de bienvenue personnalisés.
 
 ## Commandes et Permissions
 
@@ -19,6 +20,7 @@ Plugin de lobby central pour le réseau Heneria.
 | `/lobby`    | (Aucune)              | Téléporte le joueur au spawn.              |
 | `/servers`  | (Aucune)              | Ouvre le menu de sélection des serveurs.   |
 | (Bypass)    | `heneria.lobby.bypass.protection`| Ignore toutes les protections du lobby.   |
+| (Visibilité)| `heneria.lobby.canbeseen`        | Permet d'être vu par les autres joueurs en mode "VIPs". |
 
 ## Dépendances
 

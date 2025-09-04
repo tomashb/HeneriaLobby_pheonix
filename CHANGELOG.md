@@ -5,3 +5,7 @@
 - Ajout de la commande `/servers` pour ouvrir le menu.
 - Intégration avec PlaceholderAPI pour afficher le nombre de joueurs sur chaque serveur.
 - Ajout de l'action `server:<nom>` pour envoyer les joueurs vers les serveurs du réseau Velocity.
+
+## [1.2.2] - Formatage Final des Descriptions
+### 🎨 Améliorations
+- Restructuration des descriptions des jeux dans le GUI pour séparer les sections "Description" et "Informations".

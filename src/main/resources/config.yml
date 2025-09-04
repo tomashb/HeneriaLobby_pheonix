@@ -1,0 +1,3 @@
+# Hauteur Y à laquelle les joueurs sont téléportés au spawn pour éviter la mort par chute.
+void-teleport-y: 0
+

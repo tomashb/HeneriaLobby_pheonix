@@ -1,0 +1,6 @@
+spawn-set-success: "&aLe spawn du lobby a été défini avec succès !"
+spawn-teleport: "&7Vous avez été téléporté au spawn."
+spawn-not-set: "&cLe point de spawn du lobby n'a pas encore été configuré."
+no-permission: "&cVous n'avez pas la permission d'exécuter cette commande."
+player-only: "&cCette commande ne peut être exécutée que par un joueur."
+

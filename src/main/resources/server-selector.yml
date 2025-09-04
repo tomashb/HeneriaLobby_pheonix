@@ -1,48 +1,72 @@
 menu-title: '&6Menu des jeux'
-menu-size: 3
+menu-size: 6
 items:
   border-glass:
     material: ORANGE_STAINED_GLASS_PANE
     name: ' '
-    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26]
+    slots: [3, 5, 12, 14, 21, 23]
   bedwars:
     slot: 13
-    material: HAY_BLOCK
+    material: RED_BED
     name: '&6Bedwars'
     lore:
-      - '&7Détruisez le lit de vos adversaires !'
-      - '&7Protégez le vôtre à tout prix.'
       - ''
-      - '&eJoueurs en ligne: &f%bungee_bedwars%'
-      - '&aCliquez pour rejoindre !'
+      - '&6&lDescription'
+      - '&7Détruisez le lit de vos adversaires'
+      - '&7et soyez la dernière équipe en vie !'
+      - ''
+      - '&6&lInformations'
+      - '&eVersion: &f1.21+'
+      - '&eConnecté(s): &f%bungee_bedwars%'
+      - ''
+      - '&b▶ Cliquez pour jouer !'
     action: 'server:bedwars'
   zombie:
-    slot: 21
-    material: PURPUR_BLOCK
+    slot: 22
+    material: ZOMBIE_HEAD
     name: '&2Zombie'
     lore:
-      - '&7Survivez à des hordes de zombies !'
       - ''
-      - '&eJoueurs en ligne: &f%bungee_zombie%'
-      - '&aCliquez pour rejoindre !'
+      - '&6&lDescription'
+      - '&7Combattez des vagues de zombies'
+      - '&7et survivez le plus longtemps possible.'
+      - ''
+      - '&6&lInformations'
+      - '&eVersion: &f1.21+'
+      - '&eConnecté(s): &f%bungee_zombie%'
+      - ''
+      - '&b▶ Cliquez pour jouer !'
     action: 'server:zombie'
   nexus:
-    slot: 22
+    slot: 24
     material: END_CRYSTAL
     name: '&5Nexus'
     lore:
-      - '&7Dominez le Nexus ennemi !'
       - ''
-      - '&eJoueurs en ligne: &f%bungee_nexus%'
-      - '&aCliquez pour rejoindre !'
+      - '&6&lDescription'
+      - '&7Défendez le cœur de votre base'
+      - '&7tout en détruisant celui de vos ennemis.'
+      - ''
+      - '&6&lInformations'
+      - '&eVersion: &f1.21+'
+      - '&eConnecté(s): &f%bungee_nexus%'
+      - ''
+      - '&b▶ Cliquez pour jouer !'
     action: 'server:nexus'
-  inedit:
-    slot: 23
-    material: DIAMOND_PICKAXE
-    name: '&bMode Inédit'
+  arena-pvp:
+    slot: 31
+    material: IRON_SWORD
+    name: '&cArène PvP | Classique'
     lore:
-      - '&7Découvrez un mode de jeu inédit !'
       - ''
-      - '&eJoueurs en ligne: &f%bungee_inedit%'
-      - '&aCliquez pour rejoindre !'
-    action: 'server:inedit'
+      - '&6&lDescription'
+      - '&7Le but est simple, les joueurs de la map'
+      - "&7s'affrontent dans un combat à mort."
+      - '&7Le dernier survivant remporte la partie.'
+      - ''
+      - '&6&lInformations'
+      - '&eVersion: &f1.21+'
+      - '&eConnecté(s): &f%bungee_pvp%'
+      - ''
+      - '&b▶ Cliquez pour jouer !'
+    action: 'server:pvp'

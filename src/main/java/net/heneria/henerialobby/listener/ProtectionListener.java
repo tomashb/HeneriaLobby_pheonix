@@ -28,7 +28,7 @@ public class ProtectionListener implements Listener {
 
     public ProtectionListener(HeneriaLobby plugin) {
         this.plugin = plugin;
-        this.worlds = new HashSet<>(plugin.getConfig().getStringList("protection.lobby-worlds"));
+        this.worlds = new HashSet<>(plugin.getConfig().getStringList("lobby-worlds"));
         this.lockTime = plugin.getConfig().getLong("protection.lock-time-to", 6000L);
         this.selector = plugin.getServerSelector();
 

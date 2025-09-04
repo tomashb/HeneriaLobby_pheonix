@@ -8,6 +8,9 @@ import net.heneria.henerialobby.command.ServersCommand;
 import net.heneria.henerialobby.listener.SpawnListener;
 import net.heneria.henerialobby.listener.SelectorListener;
 import net.heneria.henerialobby.listener.ProtectionListener;
+import net.heneria.henerialobby.listener.DisplayListener;
+import net.heneria.henerialobby.scoreboard.ScoreboardManager;
+import net.heneria.henerialobby.tablist.TablistManager;
 import net.heneria.henerialobby.selector.ServerSelector;
 import net.heneria.henerialobby.spawn.SpawnManager;
 import org.bukkit.Bukkit;
@@ -30,6 +33,10 @@ public class HeneriaLobby extends JavaPlugin {
     private SpawnManager spawnManager;
     private FileConfiguration messages;
     private ServerSelector serverSelector;
+    private FileConfiguration scoreboardConfig;
+    private ScoreboardManager scoreboardManager;
+    private TablistManager tablistManager;
+    private java.util.Set<String> lobbyWorlds;
 
     @Override
     public void onEnable() {
@@ -38,9 +45,12 @@ public class HeneriaLobby extends JavaPlugin {
         saveDefaultConfig();
         saveResource("messages.yml", false);
         saveResource("server-selector.yml", false);
+        saveResource("scoreboard.yml", false);
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
+        scoreboardConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "scoreboard.yml"));
         spawnManager = new SpawnManager(this);
         serverSelector = new ServerSelector(this);
+        lobbyWorlds = new java.util.HashSet<>(getConfig().getStringList("lobby-worlds"));
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             getLogger().info("PlaceholderAPI detected; placeholders enabled");
@@ -58,12 +68,25 @@ public class HeneriaLobby extends JavaPlugin {
         if (getConfig().getBoolean("protection.enabled", true)) {
             Bukkit.getPluginManager().registerEvents(new ProtectionListener(this), this);
         }
+        Bukkit.getPluginManager().registerEvents(new DisplayListener(this), this);
+
+        if (getConfig().getBoolean("scoreboard.enabled", true)) {
+            scoreboardManager = new ScoreboardManager(this, scoreboardConfig);
+            long interval = getConfig().getLong("scoreboard.update-interval", 40L);
+            getServer().getScheduler().runTaskTimer(this, () -> scoreboardManager.updateAll(), 0L, interval);
+        }
+
+        if (getConfig().getBoolean("tablist.enabled", true)) {
+            tablistManager = new TablistManager(this, scoreboardConfig);
+            long interval = getConfig().getLong("tablist.update-interval", 40L);
+            getServer().getScheduler().runTaskTimer(this, () -> tablistManager.updateAll(), 0L, interval);
+        }
     }
 
     @Override
-    public void onDisable() {
-        this.getServer().getMessenger().unregisterOutgoingPluginChannel(this, VELOCITY_CONNECT);
-    }
+      public void onDisable() {
+          this.getServer().getMessenger().unregisterOutgoingPluginChannel(this, VELOCITY_CONNECT);
+      }
 
     public void sendPlayer(Player player, String server) {
         var out = ByteStreams.newDataOutput();
@@ -71,12 +94,39 @@ public class HeneriaLobby extends JavaPlugin {
         player.sendPluginMessage(this, VELOCITY_CONNECT, out.toByteArray());
     }
 
-    public String applyPlaceholders(Player player, String text) {
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            return PlaceholderAPI.setPlaceholders(player, text);
-        }
-        return text;
-    }
+      public String applyPlaceholders(Player player, String text) {
+          if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+              return PlaceholderAPI.setPlaceholders(player, text);
+          }
+          return text;
+      }
+
+      public boolean isLobbyWorld(org.bukkit.World world) {
+          return world != null && lobbyWorlds.contains(world.getName());
+      }
+
+      public void updateDisplays(Player player) {
+          if (scoreboardManager != null || tablistManager != null) {
+              if (isLobbyWorld(player.getWorld())) {
+                  if (scoreboardManager != null) {
+                      scoreboardManager.update(player);
+                  }
+                  if (tablistManager != null) {
+                      tablistManager.update(player);
+                  }
+              } else {
+                  if (scoreboardManager != null) {
+                      var manager = Bukkit.getScoreboardManager();
+                      if (manager != null) {
+                          player.setScoreboard(manager.getNewScoreboard());
+                      }
+                  }
+                  if (tablistManager != null) {
+                      player.setPlayerListHeaderFooter("", "");
+                  }
+              }
+          }
+      }
 
     public String getMessage(String key) {
         String message = messages.getString(key, key);

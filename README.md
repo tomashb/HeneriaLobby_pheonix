@@ -9,6 +9,7 @@ Plugin de lobby central pour le réseau Heneria.
 * **Protection des Items :** Les items du lobby (comme le sélecteur de jeux) ne peuvent être jetés ni placés.
 * **Protection Complète :** Un module de protection robuste empêche le grief, les dégâts, et verrouille l'inventaire des joueurs pour une expérience propre et sécurisée dans le lobby.
 * **Contrôle de l'Environnement :** Maintient un temps clair et un jour permanent dans les mondes du lobby.
+* **Affichages Personnalisés :** Configurez un scoreboard et une Tablist uniques avec des informations dynamiques. Le scoreboard est conçu pour afficher le rang (via LuckPerms), les monnaies, et le nombre total de joueurs sur le réseau.
 
 ## Commandes et Permissions
 
@@ -21,7 +22,12 @@ Plugin de lobby central pour le réseau Heneria.
 
 ## Dépendances
 
-* **PlaceholderAPI :** Requis pour afficher les informations dynamiques comme le nombre de joueurs dans le menu.
+* **PlaceholderAPI :** Requis. Pour une expérience complète, vous devez installer les extensions (`/papi ecloud download ...`) suivantes :
+    * `player` (inclus par défaut)
+    * `server` (pour `%server_name%`)
+    * `Vault` (pour la compatibilité avec `%luckperms_prefix%`)
+    * `LuckPerms` (pour des placeholders plus spécifiques si besoin)
+    * Les extensions de vos plugins d'économie (ex: `PlayerPoints`).
 
 ## Compilation
 

@@ -31,3 +31,10 @@
 - Verrouillage de l'inventaire des joueurs.
 - Contrôle de la météo et du cycle jour/nuit.
 - Ajout de la permission `heneria.lobby.bypass.protection` pour les administrateurs.
+
+## [1.5.0] - Ajout du Scoreboard et de la Tablist
+### ✨ Ajouts
+- Ajout d'un scoreboard latéral personnalisable via `scoreboard.yml`, basé sur un design spécifique.
+- Ajout d'un header et footer de Tablist personnalisables.
+- Intégration complète avec PlaceholderAPI pour des affichages dynamiques, incluant les préfixes LuckPerms et le total de joueurs du réseau.
+- Ajout d'options dans `config.yml` pour activer/désactiver ces fonctionnalités.

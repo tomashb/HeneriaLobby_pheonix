@@ -1,0 +1,27 @@
+# Configuration du scoreboard affiché dans le lobby
+scoreboard:
+  title: "&a&lHENERIA"
+  lines:
+    - "&7▪ &fCompte : &e%player_name%"
+    - " " # Ligne vide 1
+    - "&7» &fRang : %luckperms_prefix%" # Placeholder final pour LuckPerms
+    - "&7» &fCrédits : &6%playerpoints_points% ©" # Placeholder de votre plugin de monnaie (à adapter)
+    - "&7» &fCristaux : &b%essentials_eco_balance% ❖" # Placeholder d'une autre monnaie (à adapter)
+    - " " # Ligne vide 2
+    - "&fConnectés : &a%bungee_total%" # Affiche uniquement le total du réseau
+    - "&fHub : &6#%server_name%"
+    - " " # Ligne vide 3
+    - "&aheneria.com"
+
+# Configuration de l'en-tête et pied de page de la liste de joueurs (TAB)
+tablist:
+  header: |
+    &7
+    &a&lHENERIA
+    &fVous êtes sur le serveur &e%server_name%
+    &7
+  footer: |
+    &7
+    &eJoueurs en ligne sur le réseau : &f%bungee_total%
+    &aDiscord: &fdiscord.gg/heneria
+    &7

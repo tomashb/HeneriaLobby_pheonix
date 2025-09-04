@@ -1,0 +1,23 @@
+# Créez autant de commandes que vous le souhaitez ici.
+# Chaque commande enverra le message défini au joueur.
+# Les placeholders de PlaceholderAPI et les codes couleurs (&) sont supportés.
+
+discord:
+  aliases: [invite, disc]
+  message:
+    - "&7---------------------------------"
+    - "&9Rejoignez notre communauté sur Discord !"
+    - "&eLien : &fdiscord.gg/heneria"
+    - "&7---------------------------------"
+
+site:
+  aliases: [website, web]
+  message: "&aVisitez notre site web pour les dernières nouvelles : &fwww.heneria.com"
+
+boutique:
+  message: "&eSoutenez le serveur ! Visitez notre boutique : &fboutique.heneria.com"
+
+regles:
+  message:
+    - "&cMerci de lire les règles sur notre discord avant de jouer."
+    - "&cToute infraction sera sanctionnée."

@@ -5,7 +5,10 @@ import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.heneria.henerialobby.command.LobbyCommand;
 import net.heneria.henerialobby.command.SetLobbyCommand;
+import net.heneria.henerialobby.command.ServersCommand;
 import net.heneria.henerialobby.listener.SpawnListener;
+import net.heneria.henerialobby.listener.SelectorListener;
+import net.heneria.henerialobby.selector.ServerSelector;
 import net.heneria.henerialobby.spawn.SpawnManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -21,6 +24,7 @@ public class HeneriaLobby extends JavaPlugin {
 
     private SpawnManager spawnManager;
     private FileConfiguration messages;
+    private ServerSelector serverSelector;
 
     @Override
     public void onEnable() {
@@ -28,8 +32,10 @@ public class HeneriaLobby extends JavaPlugin {
 
         saveDefaultConfig();
         saveResource("messages.yml", false);
+        saveResource("server-selector.yml", false);
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
         spawnManager = new SpawnManager(this);
+        serverSelector = new ServerSelector(this);
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             getLogger().info("PlaceholderAPI detected; placeholders enabled");
@@ -41,7 +47,9 @@ public class HeneriaLobby extends JavaPlugin {
 
         getCommand("lobby").setExecutor(new LobbyCommand(this, spawnManager));
         getCommand("setlobby").setExecutor(new SetLobbyCommand(this, spawnManager));
+        getCommand("servers").setExecutor(new ServersCommand(serverSelector));
         Bukkit.getPluginManager().registerEvents(new SpawnListener(this, spawnManager), this);
+        Bukkit.getPluginManager().registerEvents(new SelectorListener(this, serverSelector), this);
     }
 
     @Override

@@ -7,6 +7,8 @@ Plugin de lobby central pour le réseau Heneria.
 * **Système de Spawn :** Définissez un point de spawn unique pour le lobby avec `/setlobby` et permettez aux joueurs d'y retourner avec `/lobby`.
 * **Sélecteur de Serveurs :** Un GUI entièrement personnalisable permet aux joueurs de naviguer facilement entre vos serveurs de jeu.
 * **Protection des Items :** Les items du lobby (comme le sélecteur de jeux) ne peuvent être jetés ni placés.
+* **Protection Complète :** Un module de protection robuste empêche le grief, les dégâts, et verrouille l'inventaire des joueurs pour une expérience propre et sécurisée dans le lobby.
+* **Contrôle de l'Environnement :** Maintient un temps clair et un jour permanent dans les mondes du lobby.
 
 ## Commandes et Permissions
 
@@ -15,6 +17,7 @@ Plugin de lobby central pour le réseau Heneria.
 | `/setlobby` | `heneria.lobby.admin` | Définit le point de spawn du lobby.        |
 | `/lobby`    | (Aucune)              | Téléporte le joueur au spawn.              |
 | `/servers`  | (Aucune)              | Ouvre le menu de sélection des serveurs.   |
+| (Bypass)    | `heneria.lobby.bypass.protection`| Ignore toutes les protections du lobby.   |
 
 ## Dépendances
 

@@ -7,6 +7,7 @@ import net.heneria.henerialobby.command.SetLobbyCommand;
 import net.heneria.henerialobby.command.ServersCommand;
 import net.heneria.henerialobby.listener.SpawnListener;
 import net.heneria.henerialobby.listener.SelectorListener;
+import net.heneria.henerialobby.listener.ProtectionListener;
 import net.heneria.henerialobby.selector.ServerSelector;
 import net.heneria.henerialobby.spawn.SpawnManager;
 import org.bukkit.Bukkit;
@@ -54,6 +55,9 @@ public class HeneriaLobby extends JavaPlugin {
         getCommand("servers").setExecutor(new ServersCommand(serverSelector));
         Bukkit.getPluginManager().registerEvents(new SpawnListener(this, spawnManager), this);
         Bukkit.getPluginManager().registerEvents(new SelectorListener(this, serverSelector), this);
+        if (getConfig().getBoolean("protection.enabled", true)) {
+            Bukkit.getPluginManager().registerEvents(new ProtectionListener(this), this);
+        }
     }
 
     @Override
@@ -77,6 +81,10 @@ public class HeneriaLobby extends JavaPlugin {
     public String getMessage(String key) {
         String message = messages.getString(key, key);
         return org.bukkit.ChatColor.translateAlternateColorCodes('&', message);
+    }
+
+    public ServerSelector getServerSelector() {
+        return serverSelector;
     }
 }
 

@@ -16,6 +16,10 @@ commands:
   servers:
     description: "Ouvre le menu de sélection des serveurs"
     usage: "/servers"
+  lobbyadmin:
+    description: "Commandes d'administration du lobby"
+    usage: "/lobbyadmin reload"
+    permission: heneria.lobby.admin.reload
 permissions:
   heneria.lobby.admin:
     description: "Permet de configurer le spawn du lobby"
@@ -23,3 +27,6 @@ permissions:
   heneria.lobby.canbeseen:
     description: "Permet d'être vu en mode VIP."
     default: false
+  heneria.lobby.admin.reload:
+    description: "Permet de recharger le plugin"
+    default: op

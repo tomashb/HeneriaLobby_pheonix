@@ -139,7 +139,8 @@ public class ServerSelector {
                     .collect(Collectors.toList()));
         }
         if (cs.getBoolean("enchanted", false)) {
-            meta.addEnchant(Enchantment.DURABILITY, 1, true);
+            // Use the modern UNBREAKING enchantment to give the shiny effect without durability tooltip.
+            meta.addEnchant(Enchantment.UNBREAKING, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
         item.setItemMeta(meta);

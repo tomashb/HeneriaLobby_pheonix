@@ -14,11 +14,13 @@ import net.heneria.henerialobby.listener.DisplayListener;
 import net.heneria.henerialobby.listener.VisibilityListener;
 import net.heneria.henerialobby.listener.LaunchpadListener;
 import net.heneria.henerialobby.listener.JoinLeaveListener;
+import net.heneria.henerialobby.listener.JoinEffectsListener;
 import net.heneria.henerialobby.scoreboard.ScoreboardManager;
 import net.heneria.henerialobby.tablist.TablistManager;
 import net.heneria.henerialobby.selector.ServerSelector;
 import net.heneria.henerialobby.spawn.SpawnManager;
 import net.heneria.henerialobby.visibility.VisibilityManager;
+import net.heneria.henerialobby.joineffects.JoinEffectsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -49,6 +51,7 @@ public class HeneriaLobby extends JavaPlugin {
     private ScoreboardManager scoreboardManager;
     private TablistManager tablistManager;
     private VisibilityManager visibilityManager;
+    private JoinEffectsManager joinEffectsManager;
     private java.util.Set<String> lobbyWorlds;
     private final java.util.Map<String, Command> customCommands = new java.util.HashMap<>();
 
@@ -61,11 +64,13 @@ public class HeneriaLobby extends JavaPlugin {
         saveResource("server-selector.yml", false);
         saveResource("scoreboard.yml", false);
         saveResource("commands.yml", false);
+        saveResource("joineffects.yml", false);
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
         scoreboardConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "scoreboard.yml"));
         spawnManager = new SpawnManager(this);
         serverSelector = new ServerSelector(this);
         lobbyWorlds = new java.util.HashSet<>(getConfig().getStringList("lobby-worlds"));
+        joinEffectsManager = new JoinEffectsManager(this);
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             getLogger().info("PlaceholderAPI detected; placeholders enabled");
@@ -96,6 +101,7 @@ public class HeneriaLobby extends JavaPlugin {
         if (getConfig().getBoolean("player-experience.join-leave-messages.enabled", true)) {
             Bukkit.getPluginManager().registerEvents(new JoinLeaveListener(this), this);
         }
+        Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
 
         if (getConfig().getBoolean("scoreboard.enabled", true)) {
             scoreboardManager = new ScoreboardManager(this, scoreboardConfig);
@@ -165,6 +171,7 @@ public class HeneriaLobby extends JavaPlugin {
         spawnManager = new SpawnManager(this);
         serverSelector = new ServerSelector(this);
         lobbyWorlds = new java.util.HashSet<>(getConfig().getStringList("lobby-worlds"));
+        joinEffectsManager = new JoinEffectsManager(this);
 
         getCommand("lobby").setExecutor(new LobbyCommand(this, spawnManager));
         getCommand("setlobby").setExecutor(new SetLobbyCommand(this, spawnManager));
@@ -207,6 +214,7 @@ public class HeneriaLobby extends JavaPlugin {
         if (getConfig().getBoolean("player-experience.join-leave-messages.enabled", true)) {
             Bukkit.getPluginManager().registerEvents(new JoinLeaveListener(this), this);
         }
+        Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
 
         loadCustomCommands();
     }

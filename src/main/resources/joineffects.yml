@@ -1,0 +1,36 @@
+# Configurez ici les différents effets de connexion.
+# Le plugin choisira l'effet avec la plus HAUTE priorité que le joueur possède.
+
+vip:
+  permission: "heneria.lobby.joineffect.vip"
+  priority: 10
+  sounds:
+    - "ENTITY_PLAYER_LEVELUP,1,1.2" # Format: SOUND_NAME,volume,pitch
+  particles:
+    - "VILLAGER_HAPPY,50,0.5" # Format: PARTICLE_NAME,count,radius
+  firework:
+    enabled: false
+
+mvp:
+  permission: "heneria.lobby.joineffect.mvp"
+  priority: 20
+  sounds:
+    - "ENTITY_ENDER_DRAGON_FLAP,1,1"
+    - "BLOCK_BEACON_ACTIVATE,0.8,1.5"
+  particles:
+    - "ENCHANTMENT_TABLE,100,1"
+    - "PORTAL,150,1.2"
+  firework:
+    enabled: true
+    power: 1
+    colors: ["AQUA", "LIME"]
+
+staff:
+  permission: "heneria.lobby.joineffect.staff"
+  priority: 100
+  sounds:
+    - "BLOCK_END_PORTAL_SPAWN,1,1"
+  particles:
+    - "TOTEM,50,0.8"
+  firework:
+    enabled: false

@@ -1,3 +1,9 @@
+## [1.9.0] - Ajout des Effets de Connexion
+### ✨ Ajouts
+- Ajout d'un système d'effets de connexion (sons, particules, feux d'artifice) basé sur les permissions.
+- Création du fichier de configuration `joineffects.yml` pour définir les différents effets et leur priorité.
+- Ajout de permissions de type `heneria.lobby.joineffect.<nom>` pour attribuer les effets.
+
 ## [1.1.0] - Ajout du Sélecteur de Serveurs
 ### ✨ Ajouts
 - Implémentation du GUI de sélection des serveurs, entièrement configurable via `server-selector.yml`.

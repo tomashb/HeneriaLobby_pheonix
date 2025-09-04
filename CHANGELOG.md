@@ -22,3 +22,12 @@
 - Changement de la couleur du titre du menu.
 ### 🛡️ Protections
 - Il est désormais impossible de poser l'item du sélecteur de jeux. L'événement de placement est annulé.
+
+## [1.4.0] - Ajout du Module de Protection
+### ✨ Ajouts
+- Ajout d'un système complet de protection pour les mondes du lobby.
+- Prévention du grief (casse/pose de blocs).
+- Annulation de tous les dégâts aux joueurs et de la perte de faim.
+- Verrouillage de l'inventaire des joueurs.
+- Contrôle de la météo et du cycle jour/nuit.
+- Ajout de la permission `heneria.lobby.bypass.protection` pour les administrateurs.

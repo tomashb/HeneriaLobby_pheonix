@@ -5,3 +5,15 @@ api-version: '1.21'
 author: Heneria
 description: Central lobby plugin for the Heneria network
 softdepend: [PlaceholderAPI]
+commands:
+  lobby:
+    description: "Teleportation vers le spawn du lobby"
+    usage: "/lobby"
+  setlobby:
+    description: "Définit le spawn du lobby"
+    usage: "/setlobby"
+    permission: heneria.lobby.admin
+permissions:
+  heneria.lobby.admin:
+    description: "Permet de configurer le spawn du lobby"
+    default: op

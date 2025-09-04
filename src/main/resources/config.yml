@@ -1,3 +1,11 @@
 # Hauteur Y à laquelle les joueurs sont téléportés au spawn pour éviter la mort par chute.
 void-teleport-y: 0
 
+# Configuration de l'item qui ouvre le menu des serveurs
+selector-item:
+  slot: 0
+  name: '&aMenu des Jeux &7(Clic Droit)'
+  lore:
+    - '&7Ouvre le menu pour choisir ton jeu !'
+  # Texture Base64 pour la tête "Terre"
+  texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6InRlc3QifX19"

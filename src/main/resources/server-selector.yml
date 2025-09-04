@@ -1,0 +1,48 @@
+menu-title: '&6Menu des jeux'
+menu-size: 3
+items:
+  border-glass:
+    material: ORANGE_STAINED_GLASS_PANE
+    name: ' '
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26]
+  bedwars:
+    slot: 13
+    material: HAY_BLOCK
+    name: '&6Bedwars'
+    lore:
+      - '&7Détruisez le lit de vos adversaires !'
+      - '&7Protégez le vôtre à tout prix.'
+      - ''
+      - '&eJoueurs en ligne: &f%bungee_bedwars%'
+      - '&aCliquez pour rejoindre !'
+    action: 'server:bedwars'
+  zombie:
+    slot: 21
+    material: PURPUR_BLOCK
+    name: '&2Zombie'
+    lore:
+      - '&7Survivez à des hordes de zombies !'
+      - ''
+      - '&eJoueurs en ligne: &f%bungee_zombie%'
+      - '&aCliquez pour rejoindre !'
+    action: 'server:zombie'
+  nexus:
+    slot: 22
+    material: END_CRYSTAL
+    name: '&5Nexus'
+    lore:
+      - '&7Dominez le Nexus ennemi !'
+      - ''
+      - '&eJoueurs en ligne: &f%bungee_nexus%'
+      - '&aCliquez pour rejoindre !'
+    action: 'server:nexus'
+  inedit:
+    slot: 23
+    material: DIAMOND_PICKAXE
+    name: '&bMode Inédit'
+    lore:
+      - '&7Découvrez un mode de jeu inédit !'
+      - ''
+      - '&eJoueurs en ligne: &f%bungee_inedit%'
+      - '&aCliquez pour rejoindre !'
+    action: 'server:inedit'

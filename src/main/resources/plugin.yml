@@ -26,7 +26,7 @@ commands:
     permission: heneria.lobby.admin.hologram
   npc:
     description: "Gestion des PNJ"
-    usage: "/npc <create|select|sethead|equip|unequip|link>"
+    usage: "/npc <create|delete|select|move|skin|equip|unequip|link|help>"
     permission: heneria.lobby.admin.npc
 permissions:
   heneria.lobby.admin:

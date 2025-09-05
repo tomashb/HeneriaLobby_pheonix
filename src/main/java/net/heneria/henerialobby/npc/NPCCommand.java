@@ -1,23 +1,44 @@
 package net.heneria.henerialobby.npc;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.StringUtil;
 
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * Handles the /npc command and its subcommands.
  */
-public class NPCCommand implements CommandExecutor {
+public class NPCCommand implements CommandExecutor, TabCompleter {
+
+    private static final String PREFIX_SUCCESS = "§a[Succès] §f";
+    private static final String PREFIX_ERROR = "§c[Erreur] §f";
+    private static final String PREFIX_INFO = "§e[Info] §f";
 
     private final NPCManager manager;
 
     public NPCCommand(NPCManager manager) {
         this.manager = manager;
+    }
+
+    private void success(Player player, String msg) {
+        player.sendMessage(PREFIX_SUCCESS + msg);
+    }
+
+    private void error(Player player, String msg) {
+        player.sendMessage(PREFIX_ERROR + msg);
+    }
+
+    private void info(Player player, String msg) {
+        player.sendMessage(PREFIX_INFO + msg);
     }
 
     @Override
@@ -27,70 +48,95 @@ public class NPCCommand implements CommandExecutor {
             return true;
         }
         if (!player.hasPermission("heneria.lobby.admin.npc")) {
-            player.sendMessage("§cVous n'avez pas la permission.");
+            error(player, "Vous n'avez pas la permission.");
             return true;
         }
         if (args.length == 0) {
-            player.sendMessage("§cUsage: /npc <create|select|sethead|equip|unequip|link>...");
+            info(player, "Utilisez /npc help pour la liste des commandes.");
             return true;
         }
-        String sub = args[0].toLowerCase();
+        String sub = args[0].toLowerCase(Locale.ROOT);
         switch (sub) {
+            case "help":
+                sendHelp(player);
+                return true;
             case "create":
                 if (args.length < 2) {
-                    player.sendMessage("§cUsage: /npc create <name>");
+                    error(player, "Usage: /npc create <name>");
                     return true;
                 }
                 String name = args[1];
                 if (manager.create(name, player.getLocation())) {
-                    player.sendMessage("§aNPC créé.");
+                    success(player, "NPC créé.");
                 } else {
-                    player.sendMessage("§cUn NPC avec ce nom existe déjà.");
+                    error(player, "Un NPC avec ce nom existe déjà.");
+                }
+                return true;
+            case "delete":
+                if (args.length < 2) {
+                    error(player, "Usage: /npc delete <name>");
+                    return true;
+                }
+                if (manager.delete(args[1])) {
+                    success(player, "NPC supprimé.");
+                } else {
+                    error(player, "NPC introuvable.");
                 }
                 return true;
             case "select":
                 if (args.length < 2) {
-                    player.sendMessage("§cUsage: /npc select <name>");
+                    error(player, "Usage: /npc select <name>");
                     return true;
                 }
                 NPC npc = manager.getNPC(args[1]);
                 if (npc == null) {
-                    player.sendMessage("§cNPC introuvable.");
+                    error(player, "NPC introuvable.");
                 } else {
                     manager.select(player, npc);
-                    player.sendMessage("§aNPC sélectionné: " + npc.getName());
+                    success(player, "NPC sélectionné: " + npc.getName());
                 }
                 return true;
-            case "sethead":
-                if (args.length < 2) {
-                    player.sendMessage("§cUsage: /npc sethead <player|hdb:id>");
-                    return true;
-                }
+            case "move":
                 npc = manager.getSelected(player);
                 if (npc == null) {
-                    player.sendMessage("§cAucun NPC sélectionné.");
+                    error(player, "Aucun NPC sélectionné.");
                     return true;
                 }
-                ItemStack head = manager.createHead(args[1]);
+                npc.getStand().teleport(player.getLocation());
+                manager.saveAll();
+                success(player, "NPC déplacé.");
+                return true;
+            case "skin":
+            case "sethead": // alias
+                if (args.length < 3) {
+                    error(player, "Usage: /npc skin <name> <player|hdb:id>");
+                    return true;
+                }
+                npc = manager.getNPC(args[1]);
+                if (npc == null) {
+                    error(player, "NPC introuvable.");
+                    return true;
+                }
+                ItemStack head = manager.createHead(args[2]);
                 if (head == null) {
-                    player.sendMessage("§cTête introuvable.");
+                    error(player, "Tête introuvable.");
                     return true;
                 }
                 if (npc.getStand().getEquipment() != null) {
                     npc.getStand().getEquipment().setHelmet(head);
                     manager.saveAll();
-                    player.sendMessage("§aTête définie.");
+                    success(player, "Skin appliqué.");
                 }
                 return true;
             case "equip":
                 npc = manager.getSelected(player);
                 if (npc == null) {
-                    player.sendMessage("§cAucun NPC sélectionné.");
+                    error(player, "Aucun NPC sélectionné.");
                     return true;
                 }
                 ItemStack item = player.getInventory().getItemInMainHand();
                 if (item == null || item.getType() == Material.AIR) {
-                    player.sendMessage("§cTenez un objet dans votre main.");
+                    error(player, "Tenez un objet dans votre main.");
                     return true;
                 }
                 var eq = npc.getStand().getEquipment();
@@ -108,22 +154,22 @@ public class NPCCommand implements CommandExecutor {
                         eq.setItemInMainHand(item.clone());
                     }
                     manager.saveAll();
-                    player.sendMessage("§aObjet équipé.");
+                    success(player, "Objet équipé.");
                 }
                 return true;
             case "unequip":
                 if (args.length < 2) {
-                    player.sendMessage("§cUsage: /npc unequip <helmet|chestplate|leggings|boots|hand|offhand>");
+                    error(player, "Usage: /npc unequip <helmet|chestplate|leggings|boots|hand|offhand>");
                     return true;
                 }
                 npc = manager.getSelected(player);
                 if (npc == null) {
-                    player.sendMessage("§cAucun NPC sélectionné.");
+                    error(player, "Aucun NPC sélectionné.");
                     return true;
                 }
                 eq = npc.getStand().getEquipment();
                 if (eq != null) {
-                    switch (args[1].toLowerCase()) {
+                    switch (args[1].toLowerCase(Locale.ROOT)) {
                         case "helmet": eq.setHelmet(null); break;
                         case "chestplate": eq.setChestplate(null); break;
                         case "leggings": eq.setLeggings(null); break;
@@ -131,30 +177,72 @@ public class NPCCommand implements CommandExecutor {
                         case "hand": eq.setItemInMainHand(null); break;
                         case "offhand": eq.setItemInOffHand(null); break;
                         default:
-                            player.sendMessage("§cSlot invalide.");
+                            error(player, "Slot invalide.");
                             return true;
                     }
                     manager.saveAll();
-                    player.sendMessage("§aÉquipement retiré.");
+                    success(player, "Équipement retiré.");
                 }
                 return true;
             case "link":
                 if (args.length < 2) {
-                    player.sendMessage("§cUsage: /npc link <action> [args...]");
+                    error(player, "Usage: /npc link <action> [args...]");
                     return true;
                 }
                 npc = manager.getSelected(player);
                 if (npc == null) {
-                    player.sendMessage("§cAucun NPC sélectionné.");
+                    error(player, "Aucun NPC sélectionné.");
                     return true;
                 }
                 String action = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
                 manager.setAction(npc.getName(), action);
-                player.sendMessage("§aAction liée.");
+                success(player, "Action liée.");
                 return true;
             default:
-                player.sendMessage("§cUsage: /npc <create|select|sethead|equip|unequip|link>...");
+                info(player, "Utilisez /npc help pour la liste des commandes.");
                 return true;
         }
     }
+
+    private void sendHelp(Player player) {
+        player.sendMessage("§6===== Commandes PNJ =====");
+        player.sendMessage("§e/npc create <nom> §7- Crée un PNJ");
+        player.sendMessage("§e/npc delete <nom> §7- Supprime un PNJ");
+        player.sendMessage("§e/npc select <nom> §7- Sélectionne un PNJ");
+        player.sendMessage("§e/npc move §7- Déplace le PNJ sélectionné");
+        player.sendMessage("§e/npc skin <nom> <joueur|hdb:id> §7- Change la tête");
+        player.sendMessage("§e/npc equip §7- Équipe l'objet tenu au PNJ sélectionné");
+        player.sendMessage("§e/npc unequip <slot> §7- Retire un équipement");
+        player.sendMessage("§e/npc link <action> [args] §7- Lie une action au PNJ sélectionné");
+    }
+
+    @Override
+    public java.util.List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (!(sender instanceof Player) || !sender.hasPermission("heneria.lobby.admin.npc")) {
+            return java.util.Collections.emptyList();
+        }
+        if (args.length == 1) {
+            return StringUtil.copyPartialMatches(args[0], Arrays.asList("create", "delete", "select", "move", "skin", "equip", "unequip", "link", "help"), new java.util.ArrayList<>());
+        }
+        String sub = args[0].toLowerCase(Locale.ROOT);
+        if (args.length == 2) {
+            switch (sub) {
+                case "delete":
+                case "select":
+                case "skin":
+                    return StringUtil.copyPartialMatches(args[1], manager.getNames(), new java.util.ArrayList<>());
+                case "unequip":
+                    return StringUtil.copyPartialMatches(args[1], Arrays.asList("helmet", "chestplate", "leggings", "boots", "hand", "offhand"), new java.util.ArrayList<>());
+                case "link":
+                    return StringUtil.copyPartialMatches(args[1], Arrays.asList("openservermenu", "runcommand", "sendmessage"), new java.util.ArrayList<>());
+                default:
+                    break;
+            }
+        }
+        if ("skin".equals(sub) && args.length == 3) {
+            return StringUtil.copyPartialMatches(args[2], Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()), new java.util.ArrayList<>());
+        }
+        return java.util.Collections.emptyList();
+    }
 }
+

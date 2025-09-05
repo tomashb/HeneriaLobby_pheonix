@@ -204,6 +204,33 @@ public class NPCManager {
         return actions.get(npcName.toLowerCase());
     }
 
+    /**
+     * Deletes an NPC by name and removes all associated data.
+     *
+     * @param name the NPC name
+     * @return true if the NPC existed and was removed
+     */
+    public boolean delete(String name) {
+        NPC npc = npcs.remove(name.toLowerCase());
+        if (npc == null) {
+            return false;
+        }
+        byId.remove(npc.getStand().getUniqueId());
+        actions.remove(name.toLowerCase());
+        // remove selections pointing to this NPC
+        selections.values().removeIf(n -> n == npc);
+        npc.getStand().remove();
+        saveAll();
+        return true;
+    }
+
+    /**
+     * Returns a set of all NPC names.
+     */
+    public java.util.Set<String> getNames() {
+        return new java.util.HashSet<>(npcs.keySet());
+    }
+
     public void executeAction(Player player, String npcName) {
         String action = getAction(npcName);
         if (action == null) return;

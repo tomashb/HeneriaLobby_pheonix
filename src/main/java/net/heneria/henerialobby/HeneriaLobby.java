@@ -218,6 +218,8 @@ public class HeneriaLobby extends JavaPlugin {
                 }
                 if (tablistManager != null) {
                     player.setPlayerListHeaderFooter("", "");
+                }
+            }
         }
     }
 

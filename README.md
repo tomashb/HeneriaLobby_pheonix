@@ -14,6 +14,7 @@ Plugin de lobby central pour le réseau Heneria.
 * **Effets de Connexion :** Offrez des effets cosmétiques (sons, particules, feux d'artifice) uniques aux joueurs à leur connexion, avec des effets différents pour chaque grade.
 * **Accueil Personnalisé :** Accueillez vos joueurs avec un grand titre à l'écran.
 * **Format de Chat :** Gérez le format du chat de votre lobby pour afficher les grades et améliorer la lisibilité.
+* **Annonceur Automatique :** Diffusez automatiquement des messages personnalisés dans le chat du lobby.
 
 ## Commandes et Permissions
 

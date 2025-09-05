@@ -22,6 +22,7 @@ import net.heneria.henerialobby.selector.ServerSelector;
 import net.heneria.henerialobby.spawn.SpawnManager;
 import net.heneria.henerialobby.visibility.VisibilityManager;
 import net.heneria.henerialobby.joineffects.JoinEffectsManager;
+import net.heneria.henerialobby.announcer.Announcer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -53,6 +54,7 @@ public class HeneriaLobby extends JavaPlugin {
     private TablistManager tablistManager;
     private VisibilityManager visibilityManager;
     private JoinEffectsManager joinEffectsManager;
+    private Announcer announcer;
     private java.util.Set<String> lobbyWorlds;
     private final java.util.Map<String, Command> customCommands = new java.util.HashMap<>();
 
@@ -66,6 +68,7 @@ public class HeneriaLobby extends JavaPlugin {
         saveResource("scoreboard.yml", false);
         saveResource("commands.yml", false);
         saveResource("joineffects.yml", false);
+        saveResource("announcer.yml", false);
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
         scoreboardConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "scoreboard.yml"));
         spawnManager = new SpawnManager(this);
@@ -116,6 +119,8 @@ public class HeneriaLobby extends JavaPlugin {
             long interval = getConfig().getLong("tablist.update-interval", 40L);
             getServer().getScheduler().runTaskTimer(this, () -> tablistManager.updateAll(), 0L, interval);
         }
+
+        announcer = new Announcer(this);
 
         loadCustomCommands();
     }
@@ -197,6 +202,8 @@ public class HeneriaLobby extends JavaPlugin {
         } else {
             tablistManager = null;
         }
+
+        announcer = new Announcer(this);
 
         visibilityManager = null;
         if (getConfig().getBoolean("player-experience.player-visibility.enabled", true)) {

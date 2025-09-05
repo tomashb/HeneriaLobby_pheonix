@@ -1,0 +1,18 @@
+# Activer ou désactiver complètement le système d'annonces.
+enabled: true
+
+# Intervalle en secondes entre la diffusion de chaque message.
+interval-seconds: 180 # 3 minutes
+
+# Diffuser les messages dans un ordre aléatoire (true) ou dans l'ordre de la liste (false).
+random: true
+
+# Ce préfixe sera ajouté avant chaque message de la liste ci-dessous.
+prefix: "&6&l[Info] &e"
+
+# Liste des messages à envoyer.
+messages:
+  - "N'oubliez pas de voter pour le serveur avec la commande /vote pour obtenir des récompenses uniques !"
+  - "Visitez notre boutique en ligne pour des grades et cosmétiques exclusifs sur boutique.heneria.com"
+  - "Rejoignez notre communauté sur Discord pour ne rater aucun événement ! /discord"
+  - "Vous avez trouvé un bug ? Signalez-le à un membre du staff pour nous aider à améliorer le serveur."

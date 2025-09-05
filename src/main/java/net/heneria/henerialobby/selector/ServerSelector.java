@@ -1,6 +1,6 @@
 package net.heneria.henerialobby.selector;
 
-import com.destroystokyo.paper.profile.ProfileProperty;
+import com.mojang.authlib.properties.Property;
 import net.heneria.henerialobby.HeneriaLobby;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -51,10 +51,7 @@ public class ServerSelector {
     private ItemStack createSelectorItem(ConfigurationSection sec) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         if (sec != null) {
-            String texture = sec.getString("texture");
-            if (texture != null && !texture.isEmpty()) {
-                applyTexture(item, texture);
-            }
+            applyTexture(item);
             ItemMeta meta = item.getItemMeta();
             if (sec.contains("name")) {
                 meta.setDisplayName(color(sec.getString("name")));
@@ -68,13 +65,19 @@ public class ServerSelector {
         return item;
     }
 
-    private void applyTexture(ItemStack item, String texture) {
+    private void applyTexture(ItemStack item) {
         try {
-            SkullMeta meta = (SkullMeta) item.getItemMeta();
+            SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
             PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID(), "HeneriaSelectorItem");
-            profile.setProperty(new ProfileProperty("textures", texture));
-            meta.setPlayerProfile(profile);
-            item.setItemMeta(meta);
+
+            String base64Texture = plugin.getConfig().getString("selector-item.texture");
+            if (base64Texture != null && !base64Texture.isEmpty()) {
+                Property textureProperty = new Property("textures", base64Texture);
+                profile.getProperties().add(textureProperty);
+            }
+
+            skullMeta.setPlayerProfile(profile);
+            item.setItemMeta(skullMeta);
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to apply texture: " + e.getMessage());
         }

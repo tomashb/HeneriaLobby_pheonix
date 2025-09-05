@@ -1,1 +1,10 @@
 # Saved holograms
+# Example hologram using PlaceholderAPI placeholders
+# bedwars-stats:
+#   world: world
+#   x: 0
+#   y: 80
+#   z: 0
+#   lines:
+#     - "&c&lBedwars"
+#     - "&fJoueurs : &a%bungee_bedwars%"

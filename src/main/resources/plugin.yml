@@ -20,6 +20,10 @@ commands:
     description: "Commandes d'administration du lobby"
     usage: "/lobbyadmin reload"
     permission: heneria.lobby.admin.reload
+  hologram:
+    description: "Gestion des hologrammes"
+    usage: "/hologram <create|delete|addline|setline|movehere>"
+    permission: heneria.lobby.admin.hologram
 permissions:
   heneria.lobby.admin:
     description: "Permet de configurer le spawn du lobby"
@@ -33,3 +37,6 @@ permissions:
   heneria.lobby.chatcolor:
     description: "Permet d'utiliser les codes couleurs dans le chat"
     default: false
+  heneria.lobby.admin.hologram:
+    description: "Permet de gérer les hologrammes"
+    default: op

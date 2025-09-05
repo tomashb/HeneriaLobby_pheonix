@@ -7,6 +7,7 @@ import net.heneria.henerialobby.command.LobbyAdminCommand;
 import net.heneria.henerialobby.command.LobbyCommand;
 import net.heneria.henerialobby.command.SetLobbyCommand;
 import net.heneria.henerialobby.command.ServersCommand;
+import net.heneria.henerialobby.command.HologramCommand;
 import net.heneria.henerialobby.listener.SpawnListener;
 import net.heneria.henerialobby.listener.SelectorListener;
 import net.heneria.henerialobby.listener.ProtectionListener;
@@ -23,6 +24,7 @@ import net.heneria.henerialobby.spawn.SpawnManager;
 import net.heneria.henerialobby.visibility.VisibilityManager;
 import net.heneria.henerialobby.joineffects.JoinEffectsManager;
 import net.heneria.henerialobby.announcer.Announcer;
+import net.heneria.henerialobby.hologram.HologramManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -55,6 +57,7 @@ public class HeneriaLobby extends JavaPlugin {
     private VisibilityManager visibilityManager;
     private JoinEffectsManager joinEffectsManager;
     private Announcer announcer;
+    private HologramManager hologramManager;
     private java.util.Set<String> lobbyWorlds;
     private final java.util.Map<String, Command> customCommands = new java.util.HashMap<>();
 
@@ -69,6 +72,7 @@ public class HeneriaLobby extends JavaPlugin {
         saveResource("commands.yml", false);
         saveResource("joineffects.yml", false);
         saveResource("announcer.yml", false);
+        saveResource("holograms.yml", false);
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
         scoreboardConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "scoreboard.yml"));
         spawnManager = new SpawnManager(this);
@@ -84,10 +88,15 @@ public class HeneriaLobby extends JavaPlugin {
 
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, VELOCITY_CONNECT);
 
+        if (hologramManager != null) {
+            hologramManager.removeAll();
+        }
         getCommand("lobby").setExecutor(new LobbyCommand(this, spawnManager));
         getCommand("setlobby").setExecutor(new SetLobbyCommand(this, spawnManager));
         getCommand("servers").setExecutor(new ServersCommand(serverSelector));
         getCommand("lobbyadmin").setExecutor(new LobbyAdminCommand(this));
+        hologramManager = new HologramManager(this);
+        getCommand("hologram").setExecutor(new HologramCommand(hologramManager));
         Bukkit.getPluginManager().registerEvents(new SpawnListener(this, spawnManager), this);
         Bukkit.getPluginManager().registerEvents(new SelectorListener(this, serverSelector), this);
         if (getConfig().getBoolean("protection.enabled", true)) {
@@ -129,6 +138,10 @@ public class HeneriaLobby extends JavaPlugin {
       public void onDisable() {
           unregisterCustomCommands();
           this.getServer().getMessenger().unregisterOutgoingPluginChannel(this, VELOCITY_CONNECT);
+          if (hologramManager != null) {
+              hologramManager.saveAll();
+              hologramManager.removeAll();
+          }
       }
 
     public void sendPlayer(Player player, String server) {
@@ -225,6 +238,9 @@ public class HeneriaLobby extends JavaPlugin {
         }
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
         Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
+
+        hologramManager = new HologramManager(this);
+        getCommand("hologram").setExecutor(new HologramCommand(hologramManager));
 
         loadCustomCommands();
     }

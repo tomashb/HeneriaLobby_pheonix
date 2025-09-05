@@ -49,9 +49,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.Arclight-xyz</groupId>
-            <artifactId>Head-Database</artifactId>
-            <version>5.1.2</version>
+            <groupId>com.masecla</groupId>
+            <artifactId>Head-Database-API</artifactId>
+            <version>5.1.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

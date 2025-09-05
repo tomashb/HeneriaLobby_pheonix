@@ -1,3 +1,8 @@
+## [2.2.1] - Amélioration Visuelle des Annonces Automatiques
+### 🎨 Améliorations
+- Intervalle par défaut des annonces porté à 5 minutes.
+- Refonte du design des messages d'annonce avec un format multi-lignes plus visible.
+
 ## [2.2.0] - Ajout de l'Annonceur Automatique
 ### ✨ Ajouts
 - Ajout d'un système de diffusion de messages automatiques (Auto-Broadcaster).

@@ -61,11 +61,23 @@ interface-and-chat:
   # Titre affiché à l'écran lors de la connexion
   welcome-title:
     enabled: true
-    title: "&6&lHENERIA"
-    subtitle: "&eBienvenue, %player_name% !"
-    fade-in: 1  # en secondes
-    stay: 3     # en secondes
-    fade-out: 1 # en secondes
+    # Le titre principal qui reste affiché pendant toute la séquence
+    main-title:
+      text: "<gradient:#FF8000:#FFD700><bold>H E N E R I A</bold></gradient>"
+      fade-in: 1
+      stay: 5 # Reste 5 secondes au total
+      fade-out: 1
+
+    # Liste des sous-titres qui s'afficheront en séquence
+    subtitles:
+      - text: "&eBienvenue, %player_name% !"
+        fade-in: 0.5
+        stay: 2
+        fade-out: 0.5
+      - text: "&fDécouvrez nos jeux : &cBedwars&f, &aZombie&f, &5Nexus &f!"
+        fade-in: 0.5
+        stay: 2
+        fade-out: 0.5
 
   # Formatage du chat
   chat-format:

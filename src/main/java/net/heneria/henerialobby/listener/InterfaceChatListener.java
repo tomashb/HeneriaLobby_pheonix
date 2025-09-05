@@ -15,6 +15,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import java.time.Duration;
+import java.util.Objects;
 
 public class InterfaceChatListener implements Listener {
 
@@ -48,7 +49,7 @@ public class InterfaceChatListener implements Listener {
             java.util.List<java.util.Map<?, ?>> subs = section.getMapList("subtitles");
             long delay = 0L;
             for (java.util.Map<?, ?> map : subs) {
-                String text = plugin.applyPlaceholders(player, String.valueOf(map.getOrDefault("text", "")));
+                String text = plugin.applyPlaceholders(player, Objects.toString(map.get("text"), ""));
                 Component subComp = mm.deserialize(text);
                 double fi = map.get("fade-in") instanceof Number ? ((Number) map.get("fade-in")).doubleValue() : 0D;
                 double st = map.get("stay") instanceof Number ? ((Number) map.get("stay")).doubleValue() : 0D;

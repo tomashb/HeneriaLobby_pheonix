@@ -26,8 +26,8 @@
             <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
         <repository>
-            <id>arcaniax-repo</id>
-            <url>https://repo.arcaniax.net/repository/maven-public/</url>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
         <repository>
             <id>minecraft-repo</id>
@@ -49,8 +49,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.arcaniax</groupId>
-            <artifactId>HeadDatabase-API</artifactId>
+            <groupId>com.github.arcaniax-outsourcing</groupId>
+            <artifactId>HeadDatabase</artifactId>
             <version>1.3.6</version>
             <scope>provided</scope>
         </dependency>

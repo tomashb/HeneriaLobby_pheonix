@@ -72,3 +72,6 @@ interface-and-chat:
     enabled: true
     # Placeholders : %vault_prefix%, %player_name%, %message%
     format: "%vault_prefix% &7%player_name% &8» &f%message%"
+holograms:
+  # Intervalle de rafraîchissement en ticks (20 ticks = 1 seconde)
+  update-interval: 100

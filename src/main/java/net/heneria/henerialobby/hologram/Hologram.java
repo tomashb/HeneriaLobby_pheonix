@@ -44,9 +44,7 @@ public class Hologram {
     public void spawn() {
         remove();
         for (int i = 0; i < lines.size(); i++) {
-            String raw = lines.get(i);
-            final String parsed = ChatColor.translateAlternateColorCodes('&',
-                    plugin.applyPlaceholders(null, raw));
+            String parsed = parseLine(lines.get(i));
             Location loc = location.clone().subtract(0, 0.25 * i, 0);
             ArmorStand stand = location.getWorld().spawn(loc, ArmorStand.class, as -> {
                 as.setInvisible(true);
@@ -75,10 +73,12 @@ public class Hologram {
     public void update() {
         for (int i = 0; i < stands.size(); i++) {
             ArmorStand stand = stands.get(i);
-            String parsed = plugin.applyPlaceholders(null, lines.get(i));
-            parsed = ChatColor.translateAlternateColorCodes('&', parsed);
-            stand.setCustomName(parsed);
+            stand.setCustomName(parseLine(lines.get(i)));
         }
+    }
+
+    private String parseLine(String text) {
+        return ChatColor.translateAlternateColorCodes('&', plugin.applyPlaceholders(null, text));
     }
 
     public void move(Location newLocation) {

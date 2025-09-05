@@ -49,9 +49,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.arcaniax-outsourcing</groupId>
-            <artifactId>HeadDatabase</artifactId>
-            <version>1.3.6</version>
+            <groupId>com.github.Arclight-xyz</groupId>
+            <artifactId>Head-Database</artifactId>
+            <version>5.1.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

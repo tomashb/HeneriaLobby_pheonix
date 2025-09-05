@@ -2,17 +2,31 @@
 enabled: true
 
 # Intervalle en secondes entre la diffusion de chaque message.
-interval-seconds: 180 # 3 minutes
+interval-seconds: 300 # 5 minutes
 
 # Diffuser les messages dans un ordre aléatoire (true) ou dans l'ordre de la liste (false).
 random: true
 
 # Ce préfixe sera ajouté avant chaque message de la liste ci-dessous.
-prefix: "&6&l[Info] &e"
+prefix: ""
 
 # Liste des messages à envoyer.
 messages:
-  - "N'oubliez pas de voter pour le serveur avec la commande /vote pour obtenir des récompenses uniques !"
-  - "Visitez notre boutique en ligne pour des grades et cosmétiques exclusifs sur boutique.heneria.com"
-  - "Rejoignez notre communauté sur Discord pour ne rater aucun événement ! /discord"
-  - "Vous avez trouvé un bug ? Signalez-le à un membre du staff pour nous aider à améliorer le serveur."
+  - |2
+
+    &7&m----------------------------------
+    &6&lAnnonce
+
+    &fN'oubliez pas de voter avec &e/vote
+    &fpour des récompenses exclusives !
+
+    &7&m----------------------------------
+  - |2
+
+    &7&m----------------------------------
+    &b&lRéseaux Sociaux
+
+    &fRejoignez notre communauté sur Discord !
+    &e/discord
+
+    &7&m----------------------------------

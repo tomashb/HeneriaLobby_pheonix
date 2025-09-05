@@ -1,3 +1,10 @@
+## [2.2.0] - Ajout de l'Annonceur Automatique
+### ✨ Ajouts
+- Ajout d'un système de diffusion de messages automatiques (Auto-Broadcaster).
+- Création du fichier de configuration `announcer.yml` pour gérer les messages, l'intervalle et le préfixe.
+- Les annonces ne sont envoyées que dans les mondes du lobby.
+- Le rechargement des annonces est pris en charge par la commande `/lobbyadmin reload`.
+
 ## [1.10.0] - Ajout du Titre de Bienvenue et du Format de Chat
 ### ✨ Ajouts
 - Ajout d'un titre et sous-titre de bienvenue personnalisables à la connexion.

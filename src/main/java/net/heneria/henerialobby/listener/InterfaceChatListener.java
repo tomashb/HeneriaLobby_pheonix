@@ -25,7 +25,7 @@ public class InterfaceChatListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         ConfigurationSection section = plugin.getConfig().getConfigurationSection("interface-and-chat.welcome-title");
         if (section == null || !section.getBoolean("enabled", true)) {
@@ -33,13 +33,25 @@ public class InterfaceChatListener implements Listener {
         }
         ConfigurationSection main = section.getConfigurationSection("main-title");
         if (main == null) {
+            plugin.getLogger().warning("Missing main-title section for welcome title");
             return;
         }
         Player player = event.getPlayer();
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
             MiniMessage mm = MiniMessage.miniMessage();
-            String mainText = plugin.applyPlaceholders(player, main.getString("text", ""));
-            Component mainComp = mm.deserialize(mainText);
+            String mainText = main.getString("text", "");
+            try {
+                mainText = plugin.applyPlaceholders(player, mainText);
+            } catch (Exception ex) {
+                plugin.getLogger().warning("Placeholder error in main title: " + ex.getMessage());
+            }
+            Component mainComp;
+            try {
+                mainComp = mm.deserialize(mainText);
+            } catch (Exception ex) {
+                plugin.getLogger().warning("Failed to parse main title: " + mainText);
+                return;
+            }
             Duration mainIn = Duration.ofMillis((long) (main.getDouble("fade-in", 0D) * 1000));
             Duration mainStay = Duration.ofMillis((long) (main.getDouble("stay", 0D) * 1000));
             Duration mainOut = Duration.ofMillis((long) (main.getDouble("fade-out", 0D) * 1000));
@@ -49,8 +61,19 @@ public class InterfaceChatListener implements Listener {
             java.util.List<java.util.Map<?, ?>> subs = section.getMapList("subtitles");
             long delay = 0L;
             for (java.util.Map<?, ?> map : subs) {
-                String text = plugin.applyPlaceholders(player, Objects.toString(map.get("text"), ""));
-                Component subComp = mm.deserialize(text);
+                String text = Objects.toString(map.get("text"), "");
+                try {
+                    text = plugin.applyPlaceholders(player, text);
+                } catch (Exception ex) {
+                    plugin.getLogger().warning("Placeholder error in subtitle: " + ex.getMessage());
+                }
+                Component subComp;
+                try {
+                    subComp = mm.deserialize(text);
+                } catch (Exception ex) {
+                    plugin.getLogger().warning("Failed to parse subtitle: " + text);
+                    continue;
+                }
                 double fi = map.get("fade-in") instanceof Number ? ((Number) map.get("fade-in")).doubleValue() : 0D;
                 double st = map.get("stay") instanceof Number ? ((Number) map.get("stay")).doubleValue() : 0D;
                 double fo = map.get("fade-out") instanceof Number ? ((Number) map.get("fade-out")).doubleValue() : 0D;
@@ -64,7 +87,7 @@ public class InterfaceChatListener implements Listener {
                 }, delay);
                 delay += ticks;
             }
-        });
+        }, 2L);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

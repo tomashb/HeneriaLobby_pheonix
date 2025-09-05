@@ -86,6 +86,19 @@ public class HeneriaLobby extends JavaPlugin {
         lobbyWorlds = new java.util.HashSet<>(getConfig().getStringList("lobby-worlds"));
         joinEffectsManager = new JoinEffectsManager(this);
 
+        // Debug welcome title configuration loading
+        ConfigurationSection welcome = getConfig().getConfigurationSection("interface-and-chat.welcome-title");
+        if (welcome == null) {
+            getLogger().warning("welcome-title section is missing from config.yml");
+        } else {
+            ConfigurationSection main = welcome.getConfigurationSection("main-title");
+            if (main == null) {
+                getLogger().warning("main-title section is missing in welcome-title");
+            } else {
+                getLogger().info("Loaded welcome title: " + main.getString("text", ""));
+            }
+        }
+
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             getLogger().info("PlaceholderAPI detected; placeholders enabled");
         } else {

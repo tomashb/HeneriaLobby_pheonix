@@ -28,6 +28,7 @@ import net.heneria.henerialobby.hologram.HologramManager;
 import net.heneria.henerialobby.npc.NPCManager;
 import net.heneria.henerialobby.npc.NPCCommand;
 import net.heneria.henerialobby.npc.NPCListener;
+import com.masecla.api.HeadDatabaseAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -64,6 +65,7 @@ public class HeneriaLobby extends JavaPlugin {
     private NPCManager npcManager;
     private java.util.Set<String> lobbyWorlds;
     private final java.util.Map<String, Command> customCommands = new java.util.HashMap<>();
+    private HeadDatabaseAPI hdbApi = null;
 
     @Override
     public void onEnable() {
@@ -106,6 +108,13 @@ public class HeneriaLobby extends JavaPlugin {
         }
 
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, VELOCITY_CONNECT);
+
+        try {
+            hdbApi = (HeadDatabaseAPI) getServer().getServicesManager().load(HeadDatabaseAPI.class);
+        } catch (NoClassDefFoundError e) {
+            getLogger().warning("HeadDatabase.jar n'est pas installé sur le serveur. La fonctionnalité des têtes personnalisées est désactivée.");
+            hdbApi = null;
+        }
 
         if (hologramManager != null) {
             hologramManager.removeAll();
@@ -187,9 +196,9 @@ public class HeneriaLobby extends JavaPlugin {
           return text;
       }
 
-      public boolean isLobbyWorld(org.bukkit.World world) {
-          return world != null && lobbyWorlds.contains(world.getName());
-      }
+    public boolean isLobbyWorld(org.bukkit.World world) {
+        return world != null && lobbyWorlds.contains(world.getName());
+    }
 
     public void updateDisplays(Player player) {
         if (scoreboardManager != null || tablistManager != null) {
@@ -209,11 +218,12 @@ public class HeneriaLobby extends JavaPlugin {
                 }
                 if (tablistManager != null) {
                     player.setPlayerListHeaderFooter("", "");
-                }
-            }
         }
     }
 
+    public HeadDatabaseAPI getHdbApi() {
+        return hdbApi;
+    }
     public void reloadAll() {
         reloadConfig();
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));

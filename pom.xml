@@ -49,12 +49,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.Arclight-xyz</groupId>
-            <artifactId>Head-Database</artifactId>
-            <version>5.1.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>com.mojang</groupId>
             <artifactId>authlib</artifactId>
             <version>3.11.50</version>

@@ -9,7 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import me.arcaniax.hdb.api.HeadDatabaseAPI;
+import com.masecla.api.HeadDatabaseAPI;
 
 import java.io.File;
 import java.io.IOException;
@@ -177,11 +177,15 @@ public class NPCManager {
     public ItemStack createHead(String input) {
         if (input.startsWith("hdb:")) {
             String id = input.substring(4);
-            try {
-                return new HeadDatabaseAPI().getItemHead(id);
-            } catch (Exception ignored) {
-                return null;
+            HeadDatabaseAPI api = plugin.getHdbApi();
+            if (api != null) {
+                try {
+                    return api.getItemHead(id);
+                } catch (Exception ignored) {
+                    return null;
+                }
             }
+            return null;
         } else {
             var item = new org.bukkit.inventory.ItemStack(org.bukkit.Material.PLAYER_HEAD);
             var meta = (org.bukkit.inventory.meta.SkullMeta) item.getItemMeta();

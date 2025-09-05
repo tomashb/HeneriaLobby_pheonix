@@ -1,5 +1,6 @@
 package net.heneria.henerialobby.selector;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.heneria.henerialobby.HeneriaLobby;
 import org.bukkit.Bukkit;
@@ -15,10 +16,13 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
-import org.bukkit.profile.PlayerProfile;
 
 import java.io.File;
-import java.util.*;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class ServerSelector {
@@ -68,15 +72,31 @@ public class ServerSelector {
     private void applyTexture(ItemStack item) {
         try {
             SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
-            PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID(), "HeneriaSelectorItem");
 
+            // 1. Récupérer la valeur de la texture depuis le fichier config.yml
             String base64Texture = plugin.getConfig().getString("selector-item.texture");
+
             if (base64Texture != null && !base64Texture.isEmpty()) {
-                Property textureProperty = new Property("textures", base64Texture);
-                profile.getProperties().add(textureProperty);
+                // 2. Créer un "GameProfile" de Mojang. C'est l'objet qui contient réellement les données de skin.
+                // On lui donne un UUID aléatoire et un nom non-nul.
+                GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "HeneriaSelectorItem");
+
+                // 3. Ajouter la propriété de texture au GameProfile
+                gameProfile.getProperties().put("textures", new Property("textures", base64Texture));
+
+                try {
+                    // 4. Utiliser la "réflexion" pour injecter notre GameProfile modifié dans la SkullMeta.
+                    // C'est une méthode avancée pour contourner les limitations de l'API.
+                    Field profileField = skullMeta.getClass().getDeclaredField("profile");
+                    profileField.setAccessible(true);
+                    profileField.set(skullMeta, gameProfile);
+
+                } catch (NoSuchFieldException | IllegalAccessException e) {
+                    plugin.getLogger().warning("Impossible d'appliquer la texture personnalisée à l'item du sélecteur.");
+                    e.printStackTrace();
+                }
             }
 
-            skullMeta.setPlayerProfile(profile);
             item.setItemMeta(skullMeta);
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to apply texture: " + e.getMessage());

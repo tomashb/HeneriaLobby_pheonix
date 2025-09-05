@@ -45,8 +45,8 @@ public class Hologram {
         remove();
         for (int i = 0; i < lines.size(); i++) {
             String raw = lines.get(i);
-            String parsed = plugin.applyPlaceholders(null, raw);
-            parsed = ChatColor.translateAlternateColorCodes('&', parsed);
+            final String parsed = ChatColor.translateAlternateColorCodes('&',
+                    plugin.applyPlaceholders(null, raw));
             Location loc = location.clone().subtract(0, 0.25 * i, 0);
             ArmorStand stand = location.getWorld().spawn(loc, ArmorStand.class, as -> {
                 as.setInvisible(true);

@@ -1,3 +1,10 @@
+## [1.10.0] - Ajout du Titre de Bienvenue et du Format de Chat
+### ✨ Ajouts
+- Ajout d'un titre et sous-titre de bienvenue personnalisables à la connexion.
+- Ajout d'un système de formatage du chat configurable via `config.yml`.
+- Intégration de PlaceholderAPI dans le titre et le chat.
+- Ajout de la permission `heneria.lobby.chatcolor` pour l'utilisation des couleurs dans le chat.
+
 ## [1.9.0] - Ajout des Effets de Connexion
 ### ✨ Ajouts
 - Ajout d'un système d'effets de connexion (sons, particules, feux d'artifice) basé sur les permissions.

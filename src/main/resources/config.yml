@@ -56,3 +56,19 @@ player-experience:
     power-vertical: 1.8 # Force de la propulsion vers le haut
     power-horizontal: 2.2 # Force de la propulsion vers l'avant
     sound: ENTITY_BAT_TAKEOFF
+
+interface-and-chat:
+  # Titre affiché à l'écran lors de la connexion
+  welcome-title:
+    enabled: true
+    title: "&6&lHENERIA"
+    subtitle: "&eBienvenue, %player_name% !"
+    fade-in: 1  # en secondes
+    stay: 3     # en secondes
+    fade-out: 1 # en secondes
+
+  # Formatage du chat
+  chat-format:
+    enabled: true
+    # Placeholders : %vault_prefix%, %player_name%, %message%
+    format: "%vault_prefix% &7%player_name% &8» &f%message%"

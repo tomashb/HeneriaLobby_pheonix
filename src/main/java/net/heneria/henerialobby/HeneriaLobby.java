@@ -15,6 +15,7 @@ import net.heneria.henerialobby.listener.VisibilityListener;
 import net.heneria.henerialobby.listener.LaunchpadListener;
 import net.heneria.henerialobby.listener.JoinLeaveListener;
 import net.heneria.henerialobby.listener.JoinEffectsListener;
+import net.heneria.henerialobby.listener.InterfaceChatListener;
 import net.heneria.henerialobby.scoreboard.ScoreboardManager;
 import net.heneria.henerialobby.tablist.TablistManager;
 import net.heneria.henerialobby.selector.ServerSelector;
@@ -102,6 +103,7 @@ public class HeneriaLobby extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new JoinLeaveListener(this), this);
         }
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
+        Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
 
         if (getConfig().getBoolean("scoreboard.enabled", true)) {
             scoreboardManager = new ScoreboardManager(this, scoreboardConfig);
@@ -215,6 +217,7 @@ public class HeneriaLobby extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new JoinLeaveListener(this), this);
         }
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
+        Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
 
         loadCustomCommands();
     }

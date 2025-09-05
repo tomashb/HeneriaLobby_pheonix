@@ -106,18 +106,23 @@ public class NPCCommand implements CommandExecutor, TabCompleter {
                 manager.saveAll();
                 success(player, "NPC déplacé.");
                 return true;
-            case "skin":
-            case "sethead": // alias
-                if (args.length < 3) {
-                    error(player, "Usage: /npc skin <name> <player|hdb:id>");
+            case "sethead":
+            case "skin": // alias
+                if (args.length < 2) {
+                    error(player, "Usage: /npc sethead <player|hdb:id>");
                     return true;
                 }
-                npc = manager.getNPC(args[1]);
+                npc = manager.getSelected(player);
                 if (npc == null) {
-                    error(player, "NPC introuvable.");
+                    error(player, "Aucun NPC sélectionné.");
                     return true;
                 }
-                ItemStack head = manager.createHead(args[2]);
+                String target = args[1];
+                if (target.startsWith("hdb:") && Bukkit.getPluginManager().getPlugin("HeadDatabase") == null) {
+                    error(player, "Le plugin HeadDatabase n'est pas installé.");
+                    return true;
+                }
+                ItemStack head = manager.createHead(target);
                 if (head == null) {
                     error(player, "Tête introuvable.");
                     return true;
@@ -210,7 +215,7 @@ public class NPCCommand implements CommandExecutor, TabCompleter {
         player.sendMessage("§e/npc delete <nom> §7- Supprime un PNJ");
         player.sendMessage("§e/npc select <nom> §7- Sélectionne un PNJ");
         player.sendMessage("§e/npc move §7- Déplace le PNJ sélectionné");
-        player.sendMessage("§e/npc skin <nom> <joueur|hdb:id> §7- Change la tête");
+        player.sendMessage("§e/npc sethead <joueur|hdb:id> §7- Change la tête du PNJ sélectionné");
         player.sendMessage("§e/npc equip §7- Équipe l'objet tenu au PNJ sélectionné");
         player.sendMessage("§e/npc unequip <slot> §7- Retire un équipement");
         player.sendMessage("§e/npc link <action> [args] §7- Lie une action au PNJ sélectionné");
@@ -222,25 +227,24 @@ public class NPCCommand implements CommandExecutor, TabCompleter {
             return java.util.Collections.emptyList();
         }
         if (args.length == 1) {
-            return StringUtil.copyPartialMatches(args[0], Arrays.asList("create", "delete", "select", "move", "skin", "equip", "unequip", "link", "help"), new java.util.ArrayList<>());
+            return StringUtil.copyPartialMatches(args[0], Arrays.asList("create", "delete", "select", "move", "sethead", "equip", "unequip", "link", "help"), new java.util.ArrayList<>());
         }
         String sub = args[0].toLowerCase(Locale.ROOT);
         if (args.length == 2) {
             switch (sub) {
                 case "delete":
                 case "select":
-                case "skin":
                     return StringUtil.copyPartialMatches(args[1], manager.getNames(), new java.util.ArrayList<>());
                 case "unequip":
                     return StringUtil.copyPartialMatches(args[1], Arrays.asList("helmet", "chestplate", "leggings", "boots", "hand", "offhand"), new java.util.ArrayList<>());
                 case "link":
                     return StringUtil.copyPartialMatches(args[1], Arrays.asList("openservermenu", "runcommand", "sendmessage"), new java.util.ArrayList<>());
+                case "sethead":
+                case "skin":
+                    return StringUtil.copyPartialMatches(args[1], Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()), new java.util.ArrayList<>());
                 default:
                     break;
             }
-        }
-        if ("skin".equals(sub) && args.length == 3) {
-            return StringUtil.copyPartialMatches(args[2], Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()), new java.util.ArrayList<>());
         }
         return java.util.Collections.emptyList();
     }

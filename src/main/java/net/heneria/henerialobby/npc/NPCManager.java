@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import me.arcaniax.hdb.api.HeadDatabaseAPI;
 
 import java.io.File;
 import java.io.IOException;
@@ -174,14 +175,12 @@ public class NPCManager {
     }
 
     public ItemStack createHead(String input) {
-        ItemStack head = null;
         if (input.startsWith("hdb:")) {
             String id = input.substring(4);
             try {
-                Class<?> apiClass = Class.forName("me.arcaniax.hdb.api.HeadDatabaseAPI");
-                Object api = apiClass.getDeclaredConstructor().newInstance();
-                head = (ItemStack) apiClass.getMethod("getItemHead", String.class).invoke(api, id);
+                return new HeadDatabaseAPI().getItemHead(id);
             } catch (Exception ignored) {
+                return null;
             }
         } else {
             var item = new org.bukkit.inventory.ItemStack(org.bukkit.Material.PLAYER_HEAD);
@@ -190,9 +189,8 @@ public class NPCManager {
                 meta.setOwningPlayer(Bukkit.getOfflinePlayer(input));
                 item.setItemMeta(meta);
             }
-            head = item;
+            return item;
         }
-        return head;
     }
 
     public void setAction(String npcName, String action) {

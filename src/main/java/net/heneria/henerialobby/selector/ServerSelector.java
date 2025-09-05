@@ -1,7 +1,6 @@
 package net.heneria.henerialobby.selector;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import net.heneria.henerialobby.HeneriaLobby;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,9 +15,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.profile.PlayerProfile;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,8 +34,11 @@ public class ServerSelector {
 
     public ServerSelector(HeneriaLobby plugin) {
         this.plugin = plugin;
-        plugin.saveResource("server-selector.yml", false);
-        menuConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "server-selector.yml"));
+        File configFile = new File(plugin.getDataFolder(), "server-selector.yml");
+        if (!configFile.exists()) {
+            plugin.saveResource("server-selector.yml", false);
+        }
+        menuConfig = YamlConfiguration.loadConfiguration(configFile);
         this.menuTitle = menuConfig.getString("menu-title", "&6Menu des jeux");
         this.menuSize = menuConfig.getInt("menu-size", 3) * 9;
         this.itemsSection = menuConfig.getConfigurationSection("items");
@@ -69,11 +71,9 @@ public class ServerSelector {
     private void applyTexture(ItemStack item, String texture) {
         try {
             SkullMeta meta = (SkullMeta) item.getItemMeta();
-            GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-            profile.getProperties().put("textures", new Property("textures", texture));
-            Field field = meta.getClass().getDeclaredField("profile");
-            field.setAccessible(true);
-            field.set(meta, profile);
+            PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID(), "HeneriaSelectorItem");
+            profile.setProperty(new ProfileProperty("textures", texture));
+            meta.setPlayerProfile(profile);
             item.setItemMeta(meta);
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to apply texture: " + e.getMessage());

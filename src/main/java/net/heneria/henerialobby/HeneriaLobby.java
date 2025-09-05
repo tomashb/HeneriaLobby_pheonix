@@ -40,8 +40,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
 public class HeneriaLobby extends JavaPlugin {
 
@@ -72,15 +70,15 @@ public class HeneriaLobby extends JavaPlugin {
         getLogger().info("HeneriaLobby enabled");
 
         saveDefaultConfig();
-        saveResource("messages.yml", false);
-        saveResource("server-selector.yml", false);
-        saveResource("scoreboard.yml", false);
-        saveResource("commands.yml", false);
-        saveResource("joineffects.yml", false);
-        saveResource("announcer.yml", false);
-        saveResource("holograms.yml", false);
-        saveResource("npcs.yml", false);
-        saveResource("npc-actions.yml", false);
+        saveResourceIfNotExists("messages.yml");
+        saveResourceIfNotExists("server-selector.yml");
+        saveResourceIfNotExists("scoreboard.yml");
+        saveResourceIfNotExists("commands.yml");
+        saveResourceIfNotExists("joineffects.yml");
+        saveResourceIfNotExists("announcer.yml");
+        saveResourceIfNotExists("holograms.yml");
+        saveResourceIfNotExists("npcs.yml");
+        saveResourceIfNotExists("npc-actions.yml");
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
         scoreboardConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "scoreboard.yml"));
         spawnManager = new SpawnManager(this);
@@ -167,6 +165,13 @@ public class HeneriaLobby extends JavaPlugin {
         announcer = new Announcer(this);
 
         loadCustomCommands();
+    }
+
+    private void saveResourceIfNotExists(String resource) {
+        File file = new File(getDataFolder(), resource);
+        if (!file.exists()) {
+            saveResource(resource, false);
+        }
     }
 
     @Override
@@ -295,13 +300,7 @@ public class HeneriaLobby extends JavaPlugin {
     }
 
     private CommandMap getCommandMap() {
-        try {
-            Method method = Bukkit.getServer().getClass().getMethod("getCommandMap");
-            return (CommandMap) method.invoke(Bukkit.getServer());
-        } catch (Exception e) {
-            getLogger().warning("Failed to get command map: " + e.getMessage());
-            return null;
-        }
+        return Bukkit.getCommandMap();
     }
 
     private void unregisterCustomCommands() {
@@ -309,20 +308,8 @@ public class HeneriaLobby extends JavaPlugin {
         if (map == null) {
             return;
         }
-        try {
-            Field f = map.getClass().getDeclaredField("knownCommands");
-            f.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            java.util.Map<String, Command> known = (java.util.Map<String, Command>) f.get(map);
-            for (Command cmd : customCommands.values()) {
-                cmd.unregister(map);
-                known.remove(cmd.getName());
-                for (String alias : cmd.getAliases()) {
-                    known.remove(alias);
-                }
-            }
-        } catch (Exception e) {
-            getLogger().warning("Failed to unregister commands: " + e.getMessage());
+        for (Command cmd : customCommands.values()) {
+            cmd.unregister(map);
         }
         customCommands.clear();
     }

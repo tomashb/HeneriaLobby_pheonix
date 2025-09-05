@@ -24,6 +24,10 @@ commands:
     description: "Gestion des hologrammes"
     usage: "/hologram <create|delete|addline|setline|movehere>"
     permission: heneria.lobby.admin.hologram
+  npc:
+    description: "Gestion des PNJ"
+    usage: "/npc <create|select|sethead|equip|unequip|link>"
+    permission: heneria.lobby.admin.npc
 permissions:
   heneria.lobby.admin:
     description: "Permet de configurer le spawn du lobby"
@@ -39,4 +43,7 @@ permissions:
     default: false
   heneria.lobby.admin.hologram:
     description: "Permet de gérer les hologrammes"
+    default: op
+  heneria.lobby.admin.npc:
+    description: "Permet de gérer les PNJ"
     default: op

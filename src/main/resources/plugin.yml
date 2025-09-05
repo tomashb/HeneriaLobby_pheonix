@@ -1,6 +1,6 @@
 name: HeneriaLobby
 main: net.heneria.henerialobby.HeneriaLobby
-version: 1.9.0
+version: 1.10.0
 api-version: '1.21'
 author: Heneria
 description: Central lobby plugin for the Heneria network
@@ -30,3 +30,6 @@ permissions:
   heneria.lobby.admin.reload:
     description: "Permet de recharger le plugin"
     default: op
+  heneria.lobby.chatcolor:
+    description: "Permet d'utiliser les codes couleurs dans le chat"
+    default: false

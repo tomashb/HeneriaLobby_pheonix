@@ -104,7 +104,9 @@ public class HeneriaLobby extends JavaPlugin {
         hologramManager = new HologramManager(this);
         getCommand("hologram").setExecutor(new HologramCommand(hologramManager));
         npcManager = new NPCManager(this);
-        getCommand("npc").setExecutor(new NPCCommand(npcManager));
+        NPCCommand npcCommand = new NPCCommand(npcManager);
+        getCommand("npc").setExecutor(npcCommand);
+        getCommand("npc").setTabCompleter(npcCommand);
         Bukkit.getPluginManager().registerEvents(new NPCListener(npcManager), this);
         Bukkit.getPluginManager().registerEvents(new SpawnListener(this, spawnManager), this);
         Bukkit.getPluginManager().registerEvents(new SelectorListener(this, serverSelector), this);
@@ -210,7 +212,9 @@ public class HeneriaLobby extends JavaPlugin {
         getCommand("setlobby").setExecutor(new SetLobbyCommand(this, spawnManager));
         getCommand("servers").setExecutor(new ServersCommand(serverSelector));
         npcManager = new NPCManager(this);
-        getCommand("npc").setExecutor(new NPCCommand(npcManager));
+        NPCCommand npcCommand = new NPCCommand(npcManager);
+        getCommand("npc").setExecutor(npcCommand);
+        getCommand("npc").setTabCompleter(npcCommand);
 
         org.bukkit.Bukkit.getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);

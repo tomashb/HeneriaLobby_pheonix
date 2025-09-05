@@ -118,6 +118,13 @@ public class HologramManager {
         return true;
     }
 
+    /**
+     * Returns a set of all hologram names.
+     */
+    public java.util.Set<String> getNames() {
+        return new java.util.HashSet<>(holograms.keySet());
+    }
+
     public void refreshAll() {
         holograms.values().forEach(Hologram::update);
     }

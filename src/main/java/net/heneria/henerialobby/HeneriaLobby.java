@@ -102,7 +102,9 @@ public class HeneriaLobby extends JavaPlugin {
         getCommand("servers").setExecutor(new ServersCommand(serverSelector));
         getCommand("lobbyadmin").setExecutor(new LobbyAdminCommand(this));
         hologramManager = new HologramManager(this);
-        getCommand("hologram").setExecutor(new HologramCommand(hologramManager));
+        HologramCommand hologramCommand = new HologramCommand(hologramManager);
+        getCommand("hologram").setExecutor(hologramCommand);
+        getCommand("hologram").setTabCompleter(hologramCommand);
         npcManager = new NPCManager(this);
         NPCCommand npcCommand = new NPCCommand(npcManager);
         getCommand("npc").setExecutor(npcCommand);
@@ -260,7 +262,9 @@ public class HeneriaLobby extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new NPCListener(npcManager), this);
 
         hologramManager = new HologramManager(this);
-        getCommand("hologram").setExecutor(new HologramCommand(hologramManager));
+        HologramCommand hologramCommand = new HologramCommand(hologramManager);
+        getCommand("hologram").setExecutor(hologramCommand);
+        getCommand("hologram").setTabCompleter(hologramCommand);
 
         loadCustomCommands();
     }

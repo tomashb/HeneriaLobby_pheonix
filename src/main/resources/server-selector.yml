@@ -8,7 +8,8 @@ items:
 
   bedwars:
     slot: 13
-    material: RED_BED
+    material: RED_BED # Matériau de secours si HeadDatabase est indisponible
+    head-id: '2754' # ID d'une tête décorative de lit rouge
     name: '&6&lBEDWARS &7| &a&lPOPULAIRE'
     enchanted: true
     lore:
@@ -26,7 +27,8 @@ items:
 
   zombie:
     slot: 21
-    material: ZOMBIE_HEAD
+    material: ZOMBIE_HEAD # Matériau de secours
+    head-id: '31202' # ID d'une tête de zombie stylisée
     name: '&2&lZOMBIE &7| &e&lBETA'
     lore:
       - ''

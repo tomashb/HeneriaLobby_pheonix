@@ -44,3 +44,18 @@ Ce projet nécessite Java 21 et Maven.
 ```sh
 mvn package
 ```
+
+### Configuration du Sélecteur de Serveurs (`server-selector.yml`)
+
+Pour chaque item, vous pouvez définir un `material` de base et, en option, un `head-id` pour utiliser une tête de HeadDatabase. Si `head-id` est spécifié, il aura la priorité.
+
+**Exemple :**
+
+```yaml
+bedwars:
+  slot: 13
+  material: RED_BED # Utilisé si HeadDatabase est indisponible
+  head-id: '2754'   # ID de la tête à utiliser
+  name: '&6&lBEDWARS'
+  # ...
+```

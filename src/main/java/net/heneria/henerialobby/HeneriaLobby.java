@@ -69,27 +69,23 @@ public class HeneriaLobby extends JavaPlugin {
     public void onEnable() {
         getLogger().info("HeneriaLobby enabled");
 
-        if (getServer().getPluginManager().getPlugin("HeadDatabase") == null) {
-            getLogger().severe("**************************************************");
-            getLogger().severe("HeadDatabase n'est pas installé. Les fonctionnalités de têtes personnalisées seront désactivées.");
-            getLogger().severe("**************************************************");
-        } else {
-            // On programme la liaison pour qu'elle s'exécute 1 tick plus tard,
-            // laissant le temps à tous les plugins de s'initialiser.
-            getServer().getScheduler().runTaskLater(this, () -> {
-                try {
-                    hdbApi = (HeadDatabaseAPI) getServer().getServicesManager().load(HeadDatabaseAPI.class);
-                    if (hdbApi != null) {
-                        getLogger().info("Liaison avec l'API de HeadDatabase réussie !");
-                    } else {
-                        getLogger().severe("Erreur critique : Impossible de charger l'API de HeadDatabase même si le plugin est présent. (Erreur de timing ?)");
-                    }
-                } catch (Exception e) {
-                    getLogger().severe("Une erreur est survenue lors de la liaison avec l'API de HeadDatabase.");
-                    e.printStackTrace();
-                }
-            }, 1L); // Le "1L" signifie "attendre 1 tick"
-        }
+// ----- NOUVEAU BLOC À COLLER -----
+// On récupère le plugin HeadDatabase directement depuis le gestionnaire de plugins
+Plugin hdbPlugin = getServer().getPluginManager().getPlugin("HeadDatabase");
+
+// On vérifie si le plugin est bien là ET s'il est bien du type "HeadDatabaseAPI"
+if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
+    // Si c'est bon, on le "cast" (convertit). C'est la liaison directe.
+    this.hdbApi = (HeadDatabaseAPI) hdbPlugin;
+    getLogger().info("LIAISON DIRECTE avec l'API de HeadDatabase réussie !");
+} else {
+    // Si ça échoue, on log une erreur claire.
+    getLogger().severe("**************************************************");
+    getLogger().severe("HeadDatabase n'a pas été trouvé ou n'est pas une instance valide de l'API.");
+    getLogger().severe("Les fonctionnalités de têtes personnalisées seront désactivées.");
+    getLogger().severe("**************************************************");
+}
+// ----- FIN DU NOUVEAU BLOC -----
 
         saveDefaultConfig();
         saveResourceIfNotExists("messages.yml");

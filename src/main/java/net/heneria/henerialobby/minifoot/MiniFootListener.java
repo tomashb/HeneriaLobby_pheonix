@@ -19,6 +19,9 @@ public class MiniFootListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
+        // --- PARTIE 1 : OPTIMISATION ET VÉRIFICATIONS PRÉLIMINAIRES ---
+
+        // On ne fait rien si le joueur n'a pas changé de bloc (ignore les mouvements de souris)
         if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
             event.getFrom().getBlockY() == event.getTo().getBlockY() &&
             event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
@@ -26,38 +29,51 @@ public class MiniFootListener implements Listener {
         }
 
         Player player = event.getPlayer();
-        Location playerLocation = event.getTo();
-        if (playerLocation == null) {
+        Location to = event.getTo();
+
+        // Le développeur doit avoir une méthode pour savoir si le joueur est déjà dans une partie
+        if (miniFootManager.isInGame(player)) {
+            // Ici, on pourra plus tard vérifier s'il sort de l'arène pour le faire quitter.
             return;
         }
 
-        Location arenaPos1 = miniFootManager.loadLocationFromConfig(plugin, "arena.pos1");
-        Location arenaPos2 = miniFootManager.loadLocationFromConfig(plugin, "arena.pos2");
+        // Charger les coins de l'arène (depuis les variables chargées au démarrage)
+        Location pos1 = miniFootManager.getArenaPos1();
+        Location pos2 = miniFootManager.getArenaPos2();
 
-        if (arenaPos1 == null || arenaPos2 == null) {
+        // On vérifie que l'arène est bien configurée
+        if (pos1 == null || pos2 == null || pos1.getWorld() == null) {
             return;
         }
 
-        plugin.getLogger().info("[DEBUG] Joueur '" + player.getName() + "' est à : " +
-                "MONDE=" + playerLocation.getWorld().getName() + ", " +
-                "X=" + playerLocation.getBlockX() + ", " +
-                "Y=" + playerLocation.getBlockY() + ", " +
-                "Z=" + playerLocation.getBlockZ());
+        // On vérifie que le joueur est dans le bon monde
+        if (!to.getWorld().equals(pos1.getWorld())) {
+            return;
+        }
 
-        int minX = Math.min(arenaPos1.getBlockX(), arenaPos2.getBlockX());
-        int maxX = Math.max(arenaPos1.getBlockX(), arenaPos2.getBlockX());
-        int minY = Math.min(arenaPos1.getBlockY(), arenaPos2.getBlockY());
-        int maxY = Math.max(arenaPos1.getBlockY(), arenaPos2.getBlockY());
-        int minZ = Math.min(arenaPos1.getBlockZ(), arenaPos2.getBlockZ());
-        int maxZ = Math.max(arenaPos1.getBlockZ(), arenaPos2.getBlockZ());
+        // --- PARTIE 2 : LA COMPARAISON FINALE ET CORRECTE ---
 
-        plugin.getLogger().info("[DEBUG] Zone Arène chargée : " +
-                "MONDE=" + arenaPos1.getWorld().getName() + ", " +
-                "X=" + minX + " à " + maxX + ", " +
-                "Y=" + minY + " à " + maxY + ", " +
-                "Z=" + minZ + " à " + maxZ);
+        // Calcul des limites min/max de la zone
+        int minX = Math.min(pos1.getBlockX(), pos2.getBlockX());
+        int maxX = Math.max(pos1.getBlockX(), pos2.getBlockX());
+        int minY = Math.min(pos1.getBlockY(), pos2.getBlockY());
+        int maxY = Math.max(pos1.getBlockY(), pos2.getBlockY());
+        int minZ = Math.min(pos1.getBlockZ(), pos2.getBlockZ());
+        int maxZ = Math.max(pos1.getBlockZ(), pos2.getBlockZ());
 
-        // La logique de vérification qui suit...
+        // La condition IF qui vérifie si la position du joueur est DANS le cube de l'arène
+        boolean isInside = (to.getBlockX() >= minX && to.getBlockX() <= maxX &&
+                            to.getBlockY() >= minY && to.getBlockY() <= maxY &&
+                            to.getBlockZ() >= minZ && to.getBlockZ() <= maxZ);
+
+        // --- PARTIE 3 : DÉCLENCHEMENT DE L'ACTION ---
+
+        if (isInside) {
+            // Le joueur est entré dans la zone !
+            // Appeler la méthode qui gère l'ajout du joueur à une équipe.
+            // Par exemple :
+            miniFootManager.addPlayerToTeam(player);
+        }
     }
 }
 

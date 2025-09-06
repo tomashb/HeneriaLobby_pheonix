@@ -6,22 +6,31 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class MiniFootManager {
     private final HeneriaLobby plugin;
     private final File configFile;
     private final FileConfiguration config;
 
+    private Location arenaPos1;
+    private Location arenaPos2;
+    private final Set<UUID> playersInGame = new HashSet<>();
+
     public MiniFootManager(HeneriaLobby plugin) {
         this.plugin = plugin;
         this.configFile = new File(plugin.getDataFolder(), "minifoot.yml");
         this.config = YamlConfiguration.loadConfiguration(configFile);
+        reloadArenaPositions();
     }
 
     private void setLocation(String path, Location loc) {
@@ -37,6 +46,7 @@ public class MiniFootManager {
     public void setArenaPos(int index, Location loc) {
         config.set("arena.world", loc.getWorld().getName());
         setLocation("arena.pos" + index, loc);
+        reloadArenaPositions();
     }
 
     public void setTeamSpawn(String team, Location loc) {
@@ -49,6 +59,27 @@ public class MiniFootManager {
 
     public void setBallSpawn(Location loc) {
         setLocation("ball-spawn", loc);
+    }
+
+    public void reloadArenaPositions() {
+        this.arenaPos1 = loadLocationFromConfig(plugin, "arena.pos1");
+        this.arenaPos2 = loadLocationFromConfig(plugin, "arena.pos2");
+    }
+
+    public Location getArenaPos1() {
+        return arenaPos1;
+    }
+
+    public Location getArenaPos2() {
+        return arenaPos2;
+    }
+
+    public boolean isInGame(Player player) {
+        return playersInGame.contains(player.getUniqueId());
+    }
+
+    public void addPlayerToTeam(Player player) {
+        playersInGame.add(player.getUniqueId());
     }
 
     /**

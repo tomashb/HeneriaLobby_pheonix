@@ -2,12 +2,21 @@ package net.heneria.henerialobby.minifoot;
 
 import net.heneria.henerialobby.HeneriaLobby;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +34,8 @@ public class MiniFootManager {
     private Location arenaPos1;
     private Location arenaPos2;
     private final Set<UUID> playersInGame = new HashSet<>();
+    private final Map<String, Set<UUID>> teamPlayers = new HashMap<>();
+    private boolean countdownRunning = false;
 
     public MiniFootManager(HeneriaLobby plugin) {
         this.plugin = plugin;
@@ -79,7 +90,81 @@ public class MiniFootManager {
     }
 
     public void addPlayerToTeam(Player player) {
+        teamPlayers.computeIfAbsent("blue", k -> new HashSet<>());
+        teamPlayers.computeIfAbsent("red", k -> new HashSet<>());
+
+        String team = teamPlayers.get("blue").size() <= teamPlayers.get("red").size() ? "blue" : "red";
+        teamPlayers.get(team).add(player.getUniqueId());
         playersInGame.add(player.getUniqueId());
+
+        player.sendMessage(plugin.getMessage("minifoot-join-" + team));
+
+        var manager = Bukkit.getScoreboardManager();
+        if (manager != null) {
+            Scoreboard board = manager.getNewScoreboard();
+            Objective objective = board.registerNewObjective("minifoot", "dummy");
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+            objective.setDisplayName(ChatColor.GOLD + "Mini-Foot");
+            objective.getScore(ChatColor.BLUE + "Bleu: 0").setScore(2);
+            objective.getScore(ChatColor.RED + "Rouge: 0").setScore(1);
+            objective.getScore(ChatColor.YELLOW + "Objectif: 3 buts").setScore(0);
+            player.setScoreboard(board);
+        }
+
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+        ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE);
+        LeatherArmorMeta meta = (LeatherArmorMeta) chest.getItemMeta();
+        if (team.equals("blue")) {
+            meta.setColor(Color.BLUE);
+        } else {
+            meta.setColor(Color.RED);
+        }
+        chest.setItemMeta(meta);
+        player.getInventory().setChestplate(chest);
+
+        Location spawn = loadLocationFromConfig(plugin, "teams." + team + ".spawn");
+        if (spawn != null) {
+            player.teleport(spawn);
+        }
+
+        checkStart();
+    }
+
+    private void checkStart() {
+        if (!countdownRunning && teamPlayers.get("blue").size() >= 1 && teamPlayers.get("red").size() >= 1) {
+            startCountdown();
+        }
+    }
+
+    private void startCountdown() {
+        countdownRunning = true;
+        new BukkitRunnable() {
+            int time = 5;
+
+            @Override
+            public void run() {
+                if (time <= 0) {
+                    for (UUID uuid : playersInGame) {
+                        Player p = Bukkit.getPlayer(uuid);
+                        if (p != null) {
+                            p.sendMessage(ChatColor.GREEN + "La partie commence !");
+                        }
+                    }
+                    countdownRunning = false;
+                    cancel();
+                    return;
+                }
+
+                for (UUID uuid : playersInGame) {
+                    Player p = Bukkit.getPlayer(uuid);
+                    if (p != null) {
+                        p.sendMessage(ChatColor.YELLOW + "Début dans " + time + "...");
+                    }
+                }
+                time--;
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
     }
 
     /**

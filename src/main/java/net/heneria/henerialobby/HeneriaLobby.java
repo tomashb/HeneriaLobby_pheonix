@@ -69,6 +69,27 @@ public class HeneriaLobby extends JavaPlugin {
     public void onEnable() {
         getLogger().info("HeneriaLobby enabled");
 
+        if (getServer().getPluginManager().getPlugin("HeadDatabase") == null) {
+            getLogger().severe("**************************************************");
+            getLogger().severe("HeadDatabase n'est pas installé ou n'a pas pu se charger.");
+            getLogger().severe("Les fonctionnalités de têtes personnalisées seront désactivées.");
+            getLogger().severe("**************************************************");
+            hdbApi = null;
+        } else {
+            try {
+                hdbApi = (HeadDatabaseAPI) getServer().getServicesManager().load(HeadDatabaseAPI.class);
+                if (hdbApi != null) {
+                    getLogger().info("Liaison avec l'API de HeadDatabase réussie !");
+                } else {
+                    getLogger().severe("Erreur critique : Impossible de charger l'API de HeadDatabase même si le plugin est présent.");
+                }
+            } catch (Exception e) {
+                getLogger().severe("Une erreur est survenue lors de la liaison avec l'API de HeadDatabase.");
+                e.printStackTrace();
+                hdbApi = null;
+            }
+        }
+
         saveDefaultConfig();
         saveResourceIfNotExists("messages.yml");
         saveResourceIfNotExists("server-selector.yml");
@@ -106,19 +127,6 @@ public class HeneriaLobby extends JavaPlugin {
         }
 
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, VELOCITY_CONNECT);
-
-        try {
-            hdbApi = (HeadDatabaseAPI) getServer().getServicesManager().load(HeadDatabaseAPI.class);
-        } catch (NoClassDefFoundError e) {
-            getLogger().warning("HeadDatabase.jar n'est pas installé sur le serveur. La fonctionnalité des têtes personnalisées est désactivée.");
-            hdbApi = null;
-        }
-
-        if (hdbApi != null) {
-            getLogger().info("[VÉRIFICATION] L'API HeadDatabase a été chargée avec succès dans la variable hdbApi.");
-        } else {
-            getLogger().severe("[VÉRIFICATION] L'API HeadDatabase N'A PAS ETE CHARGEE. La variable hdbApi est null.");
-        }
 
         if (hologramManager != null) {
             hologramManager.removeAll();

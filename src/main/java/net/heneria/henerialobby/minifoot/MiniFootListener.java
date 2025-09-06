@@ -19,9 +19,7 @@ public class MiniFootListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
-        // --- PARTIE 1 : OPTIMISATION ET VÉRIFICATIONS PRÉLIMINAIRES ---
-
-        // On ne fait rien si le joueur n'a pas changé de bloc (ignore les mouvements de souris)
+        // On ne fait rien si le joueur n'a pas changé de bloc
         if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
             event.getFrom().getBlockY() == event.getTo().getBlockY() &&
             event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
@@ -29,31 +27,38 @@ public class MiniFootListener implements Listener {
         }
 
         Player player = event.getPlayer();
-        Location to = event.getTo();
 
-        // Le développeur doit avoir une méthode pour savoir si le joueur est déjà dans une partie
+        // --- TRACE 1 ---
+        plugin.getLogger().info("[TRACE 1] Événement de mouvement détecté pour " + player.getName());
+
+        // Vérification si le joueur est déjà dans une partie
         if (miniFootManager.isInGame(player)) {
-            // Ici, on pourra plus tard vérifier s'il sort de l'arène pour le faire quitter.
+            // --- TRACE 2 ---
+            plugin.getLogger().info("[TRACE 2] Le joueur est DÉJÀ en partie. La logique s'arrête ici.");
             return;
         }
 
-        // Charger les coins de l'arène (depuis les variables chargées au démarrage)
+        // Chargement des positions de l'arène
         Location pos1 = miniFootManager.getArenaPos1();
         Location pos2 = miniFootManager.getArenaPos2();
 
-        // On vérifie que l'arène est bien configurée
         if (pos1 == null || pos2 == null || pos1.getWorld() == null) {
+            // --- TRACE 3 ---
+            plugin.getLogger().severe("[TRACE 3] Les coordonnées de l'arène ne sont pas chargées (null). La logique s'arrête ici.");
             return;
         }
 
-        // On vérifie que le joueur est dans le bon monde
-        if (!to.getWorld().equals(pos1.getWorld())) {
+        // --- TRACE 4 ---
+        plugin.getLogger().info("[TRACE 4] Coordonnées de l'arène chargées. Monde attendu : '" + pos1.getWorld().getName() + "'");
+
+        // Vérification du monde
+        if (!event.getTo().getWorld().equals(pos1.getWorld())) {
+            // --- TRACE 5 ---
+            plugin.getLogger().warning("[TRACE 5] Le joueur n'est pas dans le bon monde (il est dans '" + event.getTo().getWorld().getName() + "'). La logique s'arrête ici.");
             return;
         }
 
-        // --- PARTIE 2 : LA COMPARAISON FINALE ET CORRECTE ---
-
-        // Calcul des limites min/max de la zone
+        // Calcul des limites
         int minX = Math.min(pos1.getBlockX(), pos2.getBlockX());
         int maxX = Math.max(pos1.getBlockX(), pos2.getBlockX());
         int minY = Math.min(pos1.getBlockY(), pos2.getBlockY());
@@ -61,17 +66,17 @@ public class MiniFootListener implements Listener {
         int minZ = Math.min(pos1.getBlockZ(), pos2.getBlockZ());
         int maxZ = Math.max(pos1.getBlockZ(), pos2.getBlockZ());
 
-        // La condition IF qui vérifie si la position du joueur est DANS le cube de l'arène
-        boolean isInside = (to.getBlockX() >= minX && to.getBlockX() <= maxX &&
-                            to.getBlockY() >= minY && to.getBlockY() <= maxY &&
-                            to.getBlockZ() >= minZ && to.getBlockZ() <= maxZ);
+        // Vérification finale
+        boolean isInside = (event.getTo().getBlockX() >= minX && event.getTo().getBlockX() <= maxX &&
+                            event.getTo().getBlockY() >= minY && event.getTo().getBlockY() <= maxY &&
+                            event.getTo().getBlockZ() >= minZ && event.getTo().getBlockZ() <= maxZ);
 
-        // --- PARTIE 3 : DÉCLENCHEMENT DE L'ACTION ---
+        // --- TRACE 6 ---
+        plugin.getLogger().info("[TRACE 6] Vérification de la position... Le joueur est à l'intérieur ? -> " + isInside);
 
         if (isInside) {
-            // Le joueur est entré dans la zone !
-            // Appeler la méthode qui gère l'ajout du joueur à une équipe.
-            // Par exemple :
+            // --- TRACE 7 ---
+            plugin.getLogger().info("[TRACE 7] Le joueur EST DANS LA ZONE. Appel de la méthode pour rejoindre une équipe...");
             miniFootManager.addPlayerToTeam(player);
         }
     }

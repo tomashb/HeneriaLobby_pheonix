@@ -1,9 +1,12 @@
 package net.heneria.henerialobby.minifoot;
 
 import net.heneria.henerialobby.HeneriaLobby;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +49,51 @@ public class MiniFootManager {
 
     public void setBallSpawn(Location loc) {
         setLocation("ball-spawn", loc);
+    }
+
+    /**
+     * Charge un emplacement depuis le fichier minifoot.yml de manière sécurisée.
+     * @param plugin L'instance du plugin principal.
+     * @param path Le chemin vers l'emplacement dans le YAML (ex: "arena.pos1").
+     * @return L'objet Location si le chargement réussit, sinon null.
+     */
+    public Location loadLocationFromConfig(JavaPlugin plugin, String path) {
+        File configFile = new File(plugin.getDataFolder(), "minifoot.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+
+        // 1. On vérifie que le chemin de base existe dans le fichier
+        if (!config.isSet(path)) {
+            plugin.getLogger().severe("[DEBUG-LOAD] ERREUR: Le chemin '" + path + "' est INTROUVABLE dans minifoot.yml.");
+            return null;
+        }
+
+        // 2. On récupère le nom du monde
+        String worldName = config.getString(path + ".world");
+        if (worldName == null || worldName.isEmpty()) {
+            plugin.getLogger().severe("[DEBUG-LOAD] ERREUR: Le nom du monde est manquant pour le chemin '" + path + "'.");
+            return null;
+        }
+
+        // 3. On essaie de charger le monde via Bukkit
+        World world = Bukkit.getWorld(worldName);
+        if (world == null) {
+            plugin.getLogger().severe("[DEBUG-LOAD] ERREUR: Le monde '" + worldName + "' n'a pas pu être chargé ! Assurez-vous que le nom est correct.");
+            return null;
+        }
+
+        // 4. On vérifie que les coordonnées existent avant de les charger
+        if (!config.isSet(path + ".x") || !config.isSet(path + ".y") || !config.isSet(path + ".z")) {
+            plugin.getLogger().severe("[DEBUG-LOAD] ERREUR: Une ou plusieurs coordonnées (x, y, z) sont manquantes pour le chemin '" + path + "'.");
+            return null;
+        }
+
+        // 5. On charge les coordonnées
+        double x = config.getDouble(path + ".x");
+        double y = config.getDouble(path + ".y");
+        double z = config.getDouble(path + ".z");
+
+        plugin.getLogger().info("[DEBUG-LOAD] L'emplacement pour le chemin '" + path + "' a été chargé avec succès.");
+        return new Location(world, x, y, z);
     }
 
     private void save() {

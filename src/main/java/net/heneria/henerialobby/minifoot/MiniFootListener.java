@@ -1,44 +1,20 @@
 package net.heneria.henerialobby.minifoot;
 
 import net.heneria.henerialobby.HeneriaLobby;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import java.io.File;
 
 public class MiniFootListener implements Listener {
 
     private final HeneriaLobby plugin;
-    private final FileConfiguration miniFootConfig;
+    private final MiniFootManager miniFootManager;
 
-    public MiniFootListener(HeneriaLobby plugin) {
+    public MiniFootListener(HeneriaLobby plugin, MiniFootManager miniFootManager) {
         this.plugin = plugin;
-        this.miniFootConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "minifoot.yml"));
-    }
-
-    private Location getLocation(String path) {
-        if (!miniFootConfig.isConfigurationSection(path)) {
-            return null;
-        }
-        String worldName = miniFootConfig.getString(path + ".world");
-        if (worldName == null) {
-            return null;
-        }
-        World world = Bukkit.getWorld(worldName);
-        if (world == null) {
-            return null;
-        }
-        int x = miniFootConfig.getInt(path + ".x");
-        int y = miniFootConfig.getInt(path + ".y");
-        int z = miniFootConfig.getInt(path + ".z");
-        return new Location(world, x, y, z);
+        this.miniFootManager = miniFootManager;
     }
 
     @EventHandler
@@ -55,8 +31,8 @@ public class MiniFootListener implements Listener {
             return;
         }
 
-        Location arenaPos1 = getLocation("arena.pos1");
-        Location arenaPos2 = getLocation("arena.pos2");
+        Location arenaPos1 = miniFootManager.loadLocationFromConfig(plugin, "arena.pos1");
+        Location arenaPos2 = miniFootManager.loadLocationFromConfig(plugin, "arena.pos2");
 
         if (arenaPos1 == null || arenaPos2 == null) {
             return;

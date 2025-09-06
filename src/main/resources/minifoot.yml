@@ -1,19 +1,20 @@
+# Paramètres du jeu
 enabled: true
-match-duration-seconds: 300
-score-to-win: 3
+score-to-win: 3 # La partie se termine quand une équipe atteint ce score.
+
 arena:
   world: "lobby"
   pos1: {x: 100, y: 64, z: 200}
   pos2: {x: 150, y: 70, z: 250}
-ball-spawn: {world: "lobby", x: 125, y: 65, z: 225}
+ball-spawn: {x: 125, y: 65, z: 225}
 teams:
   blue:
-    spawn: {world: "lobby", x: 105, y: 65, z: 225}
+    spawn: {x: 105, y: 65, z: 225}
     goal:
-      pos1: {world: "lobby", x: 98, y: 64, z: 220}
-      pos2: {world: "lobby", x: 100, y: 68, z: 230}
+      pos1: {x: 98, y: 64, z: 220}
+      pos2: {x: 100, y: 68, z: 230}
   red:
-    spawn: {world: "lobby", x: 145, y: 65, z: 225}
+    spawn: {x: 145, y: 65, z: 225}
     goal:
-      pos1: {world: "lobby", x: 150, y: 64, z: 220}
-      pos2: {world: "lobby", x: 152, y: 68, z: 230}
+      pos1: {x: 150, y: 64, z: 220}
+      pos2: {x: 152, y: 68, z: 230}

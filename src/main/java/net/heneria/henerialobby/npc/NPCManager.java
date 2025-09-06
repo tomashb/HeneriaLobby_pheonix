@@ -43,6 +43,10 @@ public class NPCManager {
         loadActions();
     }
 
+    public HeneriaLobby getPlugin() {
+        return plugin;
+    }
+
     private void loadAll() {
         npcs.clear();
         byId.clear();

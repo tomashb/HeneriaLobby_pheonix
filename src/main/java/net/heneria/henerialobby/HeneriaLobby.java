@@ -71,23 +71,24 @@ public class HeneriaLobby extends JavaPlugin {
 
         if (getServer().getPluginManager().getPlugin("HeadDatabase") == null) {
             getLogger().severe("**************************************************");
-            getLogger().severe("HeadDatabase n'est pas installé ou n'a pas pu se charger.");
-            getLogger().severe("Les fonctionnalités de têtes personnalisées seront désactivées.");
+            getLogger().severe("HeadDatabase n'est pas installé. Les fonctionnalités de têtes personnalisées seront désactivées.");
             getLogger().severe("**************************************************");
-            hdbApi = null;
         } else {
-            try {
-                hdbApi = (HeadDatabaseAPI) getServer().getServicesManager().load(HeadDatabaseAPI.class);
-                if (hdbApi != null) {
-                    getLogger().info("Liaison avec l'API de HeadDatabase réussie !");
-                } else {
-                    getLogger().severe("Erreur critique : Impossible de charger l'API de HeadDatabase même si le plugin est présent.");
+            // On programme la liaison pour qu'elle s'exécute 1 tick plus tard,
+            // laissant le temps à tous les plugins de s'initialiser.
+            getServer().getScheduler().runTaskLater(this, () -> {
+                try {
+                    hdbApi = (HeadDatabaseAPI) getServer().getServicesManager().load(HeadDatabaseAPI.class);
+                    if (hdbApi != null) {
+                        getLogger().info("Liaison avec l'API de HeadDatabase réussie !");
+                    } else {
+                        getLogger().severe("Erreur critique : Impossible de charger l'API de HeadDatabase même si le plugin est présent. (Erreur de timing ?)");
+                    }
+                } catch (Exception e) {
+                    getLogger().severe("Une erreur est survenue lors de la liaison avec l'API de HeadDatabase.");
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                getLogger().severe("Une erreur est survenue lors de la liaison avec l'API de HeadDatabase.");
-                e.printStackTrace();
-                hdbApi = null;
-            }
+            }, 1L); // Le "1L" signifie "attendre 1 tick"
         }
 
         saveDefaultConfig();

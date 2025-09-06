@@ -2,6 +2,7 @@ name: HeneriaLobby
 main: net.heneria.henerialobby.HeneriaLobby
 version: 1.10.0
 api-version: '1.21'
+depend: [HeadDatabase]
 author: Heneria
 description: Central lobby plugin for the Heneria network
 softdepend: [PlaceholderAPI]

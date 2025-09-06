@@ -28,6 +28,8 @@ import net.heneria.henerialobby.hologram.HologramManager;
 import net.heneria.henerialobby.npc.NPCManager;
 import net.heneria.henerialobby.npc.NPCCommand;
 import net.heneria.henerialobby.npc.NPCListener;
+import net.heneria.henerialobby.minifoot.MiniFootManager;
+import net.heneria.henerialobby.minifoot.MiniFootAdminCommand;
 import com.masecla.api.HeadDatabaseAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -62,6 +64,7 @@ public class HeneriaLobby extends JavaPlugin {
     private Announcer announcer;
     private HologramManager hologramManager;
     private NPCManager npcManager;
+    private MiniFootManager miniFootManager;
     private java.util.Set<String> lobbyWorlds;
     private final java.util.Map<String, Command> customCommands = new java.util.HashMap<>();
     private HeadDatabaseAPI hdbApi = null;
@@ -98,12 +101,14 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         saveResourceIfNotExists("holograms.yml");
         saveResourceIfNotExists("npcs.yml");
         saveResourceIfNotExists("npc-actions.yml");
+        saveResourceIfNotExists("minifoot.yml");
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
         scoreboardConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "scoreboard.yml"));
         spawnManager = new SpawnManager(this);
         serverSelector = new ServerSelector(this);
         lobbyWorlds = new java.util.HashSet<>(getConfig().getStringList("lobby-worlds"));
         joinEffectsManager = new JoinEffectsManager(this);
+        miniFootManager = new MiniFootManager(this);
 
         // Debug welcome title configuration loading
         ConfigurationSection welcome = getConfig().getConfigurationSection("interface-and-chat.welcome-title");
@@ -133,6 +138,9 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         getCommand("setlobby").setExecutor(new SetLobbyCommand(this, spawnManager));
         getCommand("servers").setExecutor(new ServersCommand(serverSelector));
         getCommand("lobbyadmin").setExecutor(new LobbyAdminCommand(this));
+        MiniFootAdminCommand miniFootAdminCommand = new MiniFootAdminCommand(this, miniFootManager);
+        getCommand("minifootadmin").setExecutor(miniFootAdminCommand);
+        getCommand("minifootadmin").setTabCompleter(miniFootAdminCommand);
         hologramManager = new HologramManager(this);
         HologramCommand hologramCommand = new HologramCommand(hologramManager);
         getCommand("hologram").setExecutor(hologramCommand);

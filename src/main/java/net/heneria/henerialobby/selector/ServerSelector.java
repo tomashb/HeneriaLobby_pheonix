@@ -128,10 +128,7 @@ public class ServerSelector {
                 if (cs == null) continue;
 
                 if (cs.contains("slots")) {
-                    ItemStack item = new ItemStack(Material.valueOf(cs.getString("material", "STONE")));
-                    ItemMeta meta = item.getItemMeta();
-                    meta.setDisplayName(color(cs.getString("name", " ")));
-                    item.setItemMeta(meta);
+                    ItemStack item = buildItem(cs, player);
                     for (int slot : cs.getIntegerList("slots")) {
                         inv.setItem(slot, item);
                     }
@@ -151,8 +148,23 @@ public class ServerSelector {
     }
 
     private ItemStack buildItem(ConfigurationSection cs, Player player) {
-        String matName = cs.getString("material", "STONE");
-        ItemStack item = new ItemStack(Material.valueOf(matName));
+        ItemStack item = null;
+        String headId = cs.getString("head-id");
+        if (headId != null && plugin.getHdbApi() != null) {
+            try {
+                item = plugin.getHdbApi().getItemHead(headId);
+                if (item != null) {
+                    item = item.clone();
+                }
+            } catch (Exception e) {
+                item = null;
+            }
+        }
+        if (item == null) {
+            String matName = cs.getString("material", "STONE");
+            item = new ItemStack(Material.valueOf(matName));
+        }
+
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(color(plugin.applyPlaceholders(player, cs.getString("name", ""))));
         List<String> lore = cs.getStringList("lore");

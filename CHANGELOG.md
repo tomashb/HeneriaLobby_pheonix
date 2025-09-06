@@ -1,3 +1,9 @@
+## [2.4.0] - Intégration de HeadDatabase dans le GUI
+### ✨ Ajouts
+- Le sélecteur de serveurs peut maintenant utiliser des têtes personnalisées de HeadDatabase pour les icônes des jeux.
+- Ajout du champ `head-id` dans la configuration `server-selector.yml`.
+- Le `material` sert maintenant de solution de repli si une tête ne peut pas être chargée.
+
 ## [2.2.1] - Amélioration Visuelle des Annonces Automatiques
 ### 🎨 Améliorations
 - Intervalle par défaut des annonces porté à 5 minutes.

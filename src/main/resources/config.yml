@@ -7,8 +7,10 @@ selector-item:
   name: '&aMenu des Jeux &7(Clic Droit)'
   lore:
     - '&7Ouvre le menu pour choisir ton jeu !'
-  # Texture Base64 pour la tête "Terre"
-  texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6InRlc3QifX19"
+  # ID de la tête depuis le plugin HeadDatabase
+  head-id: '33202'
+  # Le matériau ci-dessous ne sera utilisé que si HeadDatabase n'est pas trouvé
+  fallback-material: COMPASS
 
 # Mondes considérés comme des lobbys
 lobby-worlds:

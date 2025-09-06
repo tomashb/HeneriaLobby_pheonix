@@ -9,6 +9,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.StringUtil;
+import com.masecla.api.HeadDatabaseAPI;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -118,9 +119,33 @@ public class NPCCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 String target = args[1];
-                if (target.startsWith("hdb:") && Bukkit.getPluginManager().getPlugin("HeadDatabase") == null) {
-                    error(player, "Le plugin HeadDatabase n'est pas installé.");
-                    return true;
+                if (target.startsWith("hdb:")) {
+                    if (Bukkit.getPluginManager().getPlugin("HeadDatabase") == null) {
+                        error(player, "Le plugin HeadDatabase n'est pas installé.");
+                        return true;
+                    }
+                    String id = target.substring(4);
+                    manager.getPlugin().getLogger().info("[DEBUG] La commande a extrait l'ID suivant : '" + id + "'");
+                    HeadDatabaseAPI api = manager.getPlugin().getHdbApi();
+                    if (api == null) {
+                        manager.getPlugin().getLogger().severe("[DEBUG] La commande ne peut pas continuer car la variable hdbApi est null !");
+                        player.sendMessage("§c[Erreur Interne] L'API de HeadDatabase n'est pas initialisée.");
+                        return true;
+                    }
+                    ItemStack head = api.getItemHead(id);
+                    if (head == null) {
+                        manager.getPlugin().getLogger().warning("[DEBUG] L'appel à hdbApi.getItemHead('" + id + "') a retourné null. L'ID est peut-être invalide pour l'API.");
+                        player.sendMessage("§cTête introuvable via l'API.");
+                        return true;
+                    } else {
+                        manager.getPlugin().getLogger().info("[DEBUG] L'API a retourné une tête avec succès ! Application sur le PNJ...");
+                        if (npc.getStand().getEquipment() != null) {
+                            npc.getStand().getEquipment().setHelmet(head);
+                            manager.saveAll();
+                        }
+                        player.sendMessage("§aTête appliquée avec succès !");
+                        return true;
+                    }
                 }
                 ItemStack head = manager.createHead(target);
                 if (head == null) {

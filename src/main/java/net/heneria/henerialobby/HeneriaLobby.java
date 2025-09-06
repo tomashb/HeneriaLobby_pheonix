@@ -114,6 +114,12 @@ public class HeneriaLobby extends JavaPlugin {
             hdbApi = null;
         }
 
+        if (hdbApi != null) {
+            getLogger().info("[VÉRIFICATION] L'API HeadDatabase a été chargée avec succès dans la variable hdbApi.");
+        } else {
+            getLogger().severe("[VÉRIFICATION] L'API HeadDatabase N'A PAS ETE CHARGEE. La variable hdbApi est null.");
+        }
+
         if (hologramManager != null) {
             hologramManager.removeAll();
         }

@@ -1,7 +1,5 @@
 package net.heneria.henerialobby.selector;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import net.heneria.henerialobby.HeneriaLobby;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,12 +11,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,9 +49,28 @@ public class ServerSelector {
     }
 
     private ItemStack createSelectorItem(ConfigurationSection sec) {
-        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+        ItemStack item = null;
         if (sec != null) {
-            applyTexture(item);
+            String headId = sec.getString("head-id");
+            if (headId != null && plugin.getHdbApi() != null) {
+                try {
+                    item = plugin.getHdbApi().getItemHead(headId);
+                    if (item != null) {
+                        item = item.clone();
+                    }
+                } catch (Exception e) {
+                    plugin.getLogger().warning("Failed to fetch head from HeadDatabase: " + e.getMessage());
+                    item = null;
+                }
+            }
+            if (item == null) {
+                String matName = sec.getString("fallback-material", "COMPASS");
+                Material mat = Material.matchMaterial(matName);
+                if (mat == null) {
+                    mat = Material.COMPASS;
+                }
+                item = new ItemStack(mat);
+            }
             ItemMeta meta = item.getItemMeta();
             if (sec.contains("name")) {
                 meta.setDisplayName(color(sec.getString("name")));
@@ -66,41 +81,10 @@ public class ServerSelector {
             }
             item.setItemMeta(meta);
         }
-        return item;
-    }
-
-    private void applyTexture(ItemStack item) {
-        try {
-            SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
-
-            // 1. Récupérer la valeur de la texture depuis le fichier config.yml
-            String base64Texture = plugin.getConfig().getString("selector-item.texture");
-
-            if (base64Texture != null && !base64Texture.isEmpty()) {
-                // 2. Créer un "GameProfile" de Mojang. C'est l'objet qui contient réellement les données de skin.
-                // On lui donne un UUID aléatoire et un nom non-nul.
-                GameProfile gameProfile = new GameProfile(UUID.randomUUID(), "HeneriaSelectorItem");
-
-                // 3. Ajouter la propriété de texture au GameProfile
-                gameProfile.getProperties().put("textures", new Property("textures", base64Texture));
-
-                try {
-                    // 4. Utiliser la "réflexion" pour injecter notre GameProfile modifié dans la SkullMeta.
-                    // C'est une méthode avancée pour contourner les limitations de l'API.
-                    Field profileField = skullMeta.getClass().getDeclaredField("profile");
-                    profileField.setAccessible(true);
-                    profileField.set(skullMeta, gameProfile);
-
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    plugin.getLogger().warning("Impossible d'appliquer la texture personnalisée à l'item du sélecteur.");
-                    e.printStackTrace();
-                }
-            }
-
-            item.setItemMeta(skullMeta);
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to apply texture: " + e.getMessage());
+        if (item == null) {
+            item = new ItemStack(Material.COMPASS);
         }
+        return item;
     }
 
     private String color(String text) {

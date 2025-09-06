@@ -30,6 +30,7 @@ import net.heneria.henerialobby.npc.NPCCommand;
 import net.heneria.henerialobby.npc.NPCListener;
 import net.heneria.henerialobby.minifoot.MiniFootManager;
 import net.heneria.henerialobby.minifoot.MiniFootAdminCommand;
+import net.heneria.henerialobby.minifoot.MiniFootListener;
 import com.masecla.api.HeadDatabaseAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -169,6 +170,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         }
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
         Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new MiniFootListener(this), this);
 
         if (getConfig().getBoolean("scoreboard.enabled", true)) {
             scoreboardManager = new ScoreboardManager(this, scoreboardConfig);
@@ -309,6 +311,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         }
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
         Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new MiniFootListener(this), this);
         Bukkit.getPluginManager().registerEvents(new NPCListener(npcManager), this);
 
         hologramManager = new HologramManager(this);

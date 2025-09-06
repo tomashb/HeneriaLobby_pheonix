@@ -8,3 +8,6 @@ visibility-all: "&aVisibilité : Tous les joueurs."
 visibility-vips: "&eVisibilité : VIPs et Staff uniquement."
 visibility-none: "&7Visibilité : Personne."
 
+minifoot-join-blue: "&aVous avez rejoint l'équipe &9bleue&a !"
+minifoot-join-red: "&aVous avez rejoint l'équipe &crouge&a !"
+

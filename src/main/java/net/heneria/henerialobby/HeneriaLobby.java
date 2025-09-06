@@ -170,7 +170,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         }
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
         Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new MiniFootListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new MiniFootListener(this, miniFootManager), this);
 
         if (getConfig().getBoolean("scoreboard.enabled", true)) {
             scoreboardManager = new ScoreboardManager(this, scoreboardConfig);
@@ -311,7 +311,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         }
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
         Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new MiniFootListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new MiniFootListener(this, miniFootManager), this);
         Bukkit.getPluginManager().registerEvents(new NPCListener(npcManager), this);
 
         hologramManager = new HologramManager(this);

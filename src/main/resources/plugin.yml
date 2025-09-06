@@ -29,6 +29,10 @@ commands:
     description: "Gestion des PNJ"
     usage: "/npc <create|delete|select|move|skin|equip|unequip|link|help>"
     permission: heneria.lobby.admin.npc
+  minifootadmin:
+    description: "Configuration du mini-jeu Mini-Foot"
+    usage: "/minifootadmin <setarena|setgoal|setspawn|setballspawn>"
+    permission: heneria.lobby.admin.minifoot
 permissions:
   heneria.lobby.admin:
     description: "Permet de configurer le spawn du lobby"
@@ -47,4 +51,7 @@ permissions:
     default: op
   heneria.lobby.admin.npc:
     description: "Permet de gérer les PNJ"
+    default: op
+  heneria.lobby.admin.minifoot:
+    description: "Permet de configurer l'arène du Mini-Foot"
     default: op

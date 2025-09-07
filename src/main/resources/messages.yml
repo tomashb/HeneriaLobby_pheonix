@@ -11,3 +11,9 @@ visibility-none: "&7Visibilité : Personne."
 minifoot-join-blue: "&aVous avez rejoint l'équipe &9bleue&a !"
 minifoot-join-red: "&aVous avez rejoint l'équipe &crouge&a !"
 
+minifoot:
+  arena-full: "&cL'arène de Mini-Foot est pleine ! (%current_players%/%max_players%)"
+  countdown-title: "&a%seconds_left%..."
+  countdown-subtitle: "&ePréparez-vous !"
+  countdown-go: "&6&lJOUEZ !"
+

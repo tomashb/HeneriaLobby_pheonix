@@ -1,6 +1,7 @@
 # Paramètres du jeu
 enabled: true
 score-to-win: 3 # La partie se termine quand une équipe atteint ce score.
+max-players: 8 # Nombre maximal de joueurs autorisés dans l'arène
 
 arena:
   world: "lobby"

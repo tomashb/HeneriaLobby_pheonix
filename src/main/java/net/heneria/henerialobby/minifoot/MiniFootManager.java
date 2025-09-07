@@ -90,6 +90,14 @@ public class MiniFootManager {
     }
 
     public void addPlayerToTeam(Player player) {
+        int maxPlayers = config.getInt("max-players", 8);
+        if (playersInGame.size() >= maxPlayers) {
+            String msg = plugin.getMessage("minifoot.arena-full")
+                    .replace("%current_players%", String.valueOf(playersInGame.size()))
+                    .replace("%max_players%", String.valueOf(maxPlayers));
+            player.sendMessage(plugin.applyPlaceholders(player, msg));
+            return;
+        }
         teamPlayers.computeIfAbsent("blue", k -> new HashSet<>());
         teamPlayers.computeIfAbsent("red", k -> new HashSet<>());
 

@@ -3,6 +3,7 @@
 ## [Unreleased] - Développement en cours
 
 - Implémentation du ballon persistant et de son comportement de base.
+- Implémentation de l'entrée/sortie automatique de l'arène et de la gestion de l'équipement.
 
 ## [2.6.0] - Setup du Mini-Foot
 - Ajout des commandes d'administration pour le Mini-Foot.

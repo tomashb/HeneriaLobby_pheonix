@@ -20,6 +20,7 @@ import net.heneria.henerialobby.listener.InterfaceChatListener;
 import net.heneria.henerialobby.minifoot.MiniFootManager;
 import net.heneria.henerialobby.minifoot.MinifootAdminCommand;
 import net.heneria.henerialobby.minifoot.MinifootSelectionListener;
+import net.heneria.henerialobby.minifoot.MinifootGameListener;
 import net.heneria.henerialobby.scoreboard.ScoreboardManager;
 import net.heneria.henerialobby.tablist.TablistManager;
 import net.heneria.henerialobby.selector.ServerSelector;
@@ -158,6 +159,8 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         }
         Bukkit.getPluginManager().registerEvents(new DisplayListener(this), this);
         Bukkit.getPluginManager().registerEvents(new MinifootSelectionListener(miniFootManager), this);
+        Bukkit.getPluginManager().registerEvents(new MinifootGameListener(this, miniFootManager), this);
+        Bukkit.getPluginManager().registerEvents(new MinifootGameListener(this, miniFootManager), this);
 
         if (getConfig().getBoolean("player-experience.player-visibility.enabled", true)) {
             visibilityManager = new VisibilityManager(this);
@@ -317,6 +320,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
         Bukkit.getPluginManager().registerEvents(new NPCListener(npcManager), this);
         Bukkit.getPluginManager().registerEvents(new MinifootSelectionListener(miniFootManager), this);
+        Bukkit.getPluginManager().registerEvents(new MinifootGameListener(this, miniFootManager), this);
 
         hologramManager = new HologramManager(this);
         HologramCommand hologramCommand = new HologramCommand(hologramManager);
@@ -379,6 +383,10 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
 
     public VisibilityManager getVisibilityManager() {
         return visibilityManager;
+    }
+
+    public MiniFootManager getMiniFootManager() {
+        return miniFootManager;
     }
 
 }

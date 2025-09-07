@@ -25,7 +25,7 @@ public class ScoreboardManager {
 
     public void updateAll() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (plugin.isLobbyWorld(player.getWorld())) {
+            if (plugin.isLobbyWorld(player.getWorld()) && (plugin.getMiniFootManager() == null || !plugin.getMiniFootManager().isPlaying(player))) {
                 update(player);
             } else {
                 var manager = Bukkit.getScoreboardManager();

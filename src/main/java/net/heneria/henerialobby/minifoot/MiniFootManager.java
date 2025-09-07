@@ -13,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -205,11 +207,12 @@ public class MiniFootManager {
         }
         ball = world.spawn(loc, Slime.class, slime -> {
             slime.setSize(1);
-            slime.setAI(false);
             slime.setGravity(true);
             slime.setInvulnerable(true);
             slime.setSilent(true);
             slime.setCollidable(true);
+            // Applique un effet de lenteur extrême pour éviter qu'il ne se déplace seul
+            slime.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 255, false, false));
         });
         plugin.getLogger().info("[DEBUG] Apparition du ballon aux coordonnées "
                 + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ".");
@@ -223,6 +226,10 @@ public class MiniFootManager {
         return config.getDouble("ball-push-multiplier", 1.2);
     }
 
+    public HeneriaLobby getPlugin() {
+        return plugin;
+    }
+
     private void applyMiniFootScoreboard(Player player) {
         var manager = Bukkit.getScoreboardManager();
         plugin.getLogger().info("[DEBUG] Tentative d'application du scoreboard de mini-foot pour " + player.getName());
@@ -232,13 +239,10 @@ public class MiniFootManager {
         Scoreboard board = manager.getNewScoreboard();
         Objective objective = board.registerNewObjective("minifoot", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "★ MINI-FOOT ★");
-        objective.getScore(ChatColor.WHITE + "Objectif : " + ChatColor.GREEN + "3 Buts" + ChatColor.RESET).setScore(6);
-        objective.getScore(ChatColor.DARK_GRAY.toString()).setScore(5);
-        objective.getScore(ChatColor.BLUE + "" + ChatColor.BOLD + "Équipe Bleue").setScore(4);
-        objective.getScore(ChatColor.BLUE + "" + ChatColor.BOLD + "» " + ChatColor.WHITE + "0").setScore(3);
-        objective.getScore(ChatColor.RED + "" + ChatColor.BOLD + "Équipe Rouge").setScore(2);
-        objective.getScore(ChatColor.RED + "" + ChatColor.BOLD + "» " + ChatColor.WHITE + "0").setScore(1);
+        objective.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "  MINI-FOOT  ");
+        objective.getScore(ChatColor.WHITE + "Objectif : " + ChatColor.GREEN + "3 Buts").setScore(4);
+        objective.getScore(ChatColor.BLUE + "Équipe Bleue : " + ChatColor.WHITE + "0").setScore(3);
+        objective.getScore(ChatColor.RED + "Équipe Rouge : " + ChatColor.WHITE + "0").setScore(2);
         player.setScoreboard(board);
     }
 

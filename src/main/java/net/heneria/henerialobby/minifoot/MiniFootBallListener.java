@@ -27,5 +27,6 @@ public class MiniFootBallListener implements Listener {
         Vector direction = slime.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
         direction.setY(0.3);
         slime.setVelocity(direction.multiply(miniFootManager.getBallPushMultiplier()));
+        miniFootManager.getPlugin().getLogger().info("[DEBUG-BALL] Vélocité appliquée au ballon : " + slime.getVelocity().toString());
     }
 }

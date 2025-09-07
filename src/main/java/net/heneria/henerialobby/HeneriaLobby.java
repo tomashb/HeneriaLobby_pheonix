@@ -372,5 +372,9 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
     public ServerSelector getServerSelector() {
         return serverSelector;
     }
+
+    public VisibilityManager getVisibilityManager() {
+        return visibilityManager;
+    }
 }
 

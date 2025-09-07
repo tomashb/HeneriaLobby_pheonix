@@ -98,8 +98,8 @@ public class MiniFootManager {
         playersInGame.add(player.getUniqueId());
 
         player.sendMessage(plugin.getMessage("minifoot-join-" + team));
-
         var manager = Bukkit.getScoreboardManager();
+        plugin.getLogger().info("[DEBUG] Tentative d'application du scoreboard de mini-foot pour " + player.getName());
         if (manager != null) {
             Scoreboard board = manager.getNewScoreboard();
             Objective objective = board.registerNewObjective("minifoot", "dummy");
@@ -113,22 +113,67 @@ public class MiniFootManager {
 
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
+        ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
         ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE);
-        LeatherArmorMeta meta = (LeatherArmorMeta) chest.getItemMeta();
-        if (team.equals("blue")) {
-            meta.setColor(Color.BLUE);
-        } else {
-            meta.setColor(Color.RED);
-        }
+        ItemStack leggings = new ItemStack(Material.LEATHER_LEGGINGS);
+        ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
+        LeatherArmorMeta meta;
+        Color color = team.equals("blue") ? Color.BLUE : Color.RED;
+        meta = (LeatherArmorMeta) helmet.getItemMeta();
+        meta.setColor(color);
+        helmet.setItemMeta(meta);
+        meta = (LeatherArmorMeta) chest.getItemMeta();
+        meta.setColor(color);
         chest.setItemMeta(meta);
+        meta = (LeatherArmorMeta) leggings.getItemMeta();
+        meta.setColor(color);
+        leggings.setItemMeta(meta);
+        meta = (LeatherArmorMeta) boots.getItemMeta();
+        meta.setColor(color);
+        boots.setItemMeta(meta);
+        player.getInventory().setHelmet(helmet);
         player.getInventory().setChestplate(chest);
+        player.getInventory().setLeggings(leggings);
+        player.getInventory().setBoots(boots);
 
         Location spawn = loadLocationFromConfig(plugin, "teams." + team + ".spawn");
         if (spawn != null) {
+            plugin.getLogger().info("[DEBUG] Téléportation de " + player.getName() + " au spawn de l'équipe " + team + " aux coordonnées : " + spawn.toString());
             player.teleport(spawn);
         }
 
         checkStart();
+    }
+
+    public void removePlayerFromGame(Player player) {
+        for (var entry : teamPlayers.entrySet()) {
+            entry.getValue().remove(player.getUniqueId());
+        }
+        playersInGame.remove(player.getUniqueId());
+
+        plugin.updateDisplays(player);
+
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+
+        var selector = plugin.getServerSelector();
+        if (selector != null) {
+            player.getInventory().setItem(selector.getSelectorSlot(), selector.getSelectorItem());
+        }
+
+        var visibility = plugin.getVisibilityManager();
+        if (visibility != null && plugin.isLobbyWorld(player.getWorld())) {
+            var mode = visibility.getMode(player);
+            player.getInventory().setItem(visibility.getSlot(), new ItemStack(visibility.getMaterial(mode)));
+            visibility.apply(player);
+            for (var other : Bukkit.getOnlinePlayers()) {
+                if (!other.equals(player)) {
+                    visibility.apply(other);
+                }
+            }
+        }
+
+        player.sendMessage(ChatColor.RED + "Vous avez quitté la partie de mini-foot.");
     }
 
     private void checkStart() {

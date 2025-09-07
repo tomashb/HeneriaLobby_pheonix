@@ -11,12 +11,19 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.entity.Slime;
+import org.bukkit.util.Vector;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.bukkit.inventory.ItemStack;
 
 public class MinifootGameListener implements Listener {
 
     private final HeneriaLobby plugin;
     private final MiniFootManager manager;
+    private final Map<UUID, Long> pushCooldown = new HashMap<>();
 
     public MinifootGameListener(HeneriaLobby plugin, MiniFootManager manager) {
         this.plugin = plugin;
@@ -42,6 +49,27 @@ public class MinifootGameListener implements Listener {
             giveLobbyItems(player);
             plugin.updateDisplays(player);
         }
+
+        if (!manager.isPlaying(player)) return;
+
+        Slime ball = manager.getBall();
+        if (ball == null || ball.isDead() || !ball.isValid()) return;
+        if (!ball.getWorld().equals(player.getWorld())) return;
+
+        double distanceSquared = ball.getLocation().distanceSquared(player.getLocation());
+        if (distanceSquared > 1.0) return; // too far to push
+
+        UUID id = player.getUniqueId();
+        long now = System.currentTimeMillis();
+        Long last = pushCooldown.get(id);
+        if (last != null && now - last < 300) return; // cooldown 300ms
+
+        pushCooldown.put(id, now);
+        Vector direction = ball.getLocation().toVector().subtract(player.getLocation().toVector());
+        direction.setY(0);
+        if (direction.lengthSquared() == 0) return;
+        direction.normalize().multiply(manager.getPushForce());
+        ball.setVelocity(direction);
     }
 
     private void giveLobbyItems(Player player) {

@@ -31,13 +31,6 @@ public class MiniFootListener implements Listener {
         // --- TRACE 1 ---
         plugin.getLogger().info("[TRACE 1] Événement de mouvement détecté pour " + player.getName());
 
-        // Vérification si le joueur est déjà dans une partie
-        if (miniFootManager.isInGame(player)) {
-            // --- TRACE 2 ---
-            plugin.getLogger().info("[TRACE 2] Le joueur est DÉJÀ en partie. La logique s'arrête ici.");
-            return;
-        }
-
         // Chargement des positions de l'arène
         Location pos1 = miniFootManager.getArenaPos1();
         Location pos2 = miniFootManager.getArenaPos2();
@@ -73,6 +66,18 @@ public class MiniFootListener implements Listener {
 
         // --- TRACE 6 ---
         plugin.getLogger().info("[TRACE 6] Vérification de la position... Le joueur est à l'intérieur ? -> " + isInside);
+
+        if (miniFootManager.isInGame(player)) {
+            if (!isInside) {
+                // --- TRACE 8 ---
+                plugin.getLogger().info("[TRACE 8] Le joueur quitte la zone. Retrait de la partie...");
+                miniFootManager.removePlayerFromGame(player);
+            } else {
+                // --- TRACE 2 ---
+                plugin.getLogger().info("[TRACE 2] Le joueur est DÉJÀ en partie et reste dans la zone.");
+            }
+            return;
+        }
 
         if (isInside) {
             // --- TRACE 7 ---

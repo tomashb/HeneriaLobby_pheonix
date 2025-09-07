@@ -3,16 +3,24 @@ package net.heneria.henerialobby.minifoot;
 import net.heneria.henerialobby.HeneriaLobby;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
+import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.util.Vector;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class MiniFootListener implements Listener {
 
     private final HeneriaLobby plugin;
     private final MiniFootManager miniFootManager;
+    private final Map<UUID, Long> pushCooldowns = new HashMap<>();
 
     public MiniFootListener(HeneriaLobby plugin, MiniFootManager miniFootManager) {
         this.plugin = plugin;
@@ -74,9 +82,31 @@ public class MiniFootListener implements Listener {
                 // --- TRACE 8 ---
                 plugin.getLogger().info("[TRACE 8] Le joueur quitte la zone. Retrait de la partie...");
                 miniFootManager.removePlayerFromGame(player);
-            } else {
-                // --- TRACE 2 ---
-                plugin.getLogger().info("[TRACE 2] Le joueur est DÉJÀ en partie et reste dans la zone.");
+                return;
+            }
+
+            // --- TRACE 2 ---
+            plugin.getLogger().info("[TRACE 2] Le joueur est DÉJÀ en partie et reste dans la zone.");
+
+            Slime ball = miniFootManager.getBall();
+            if (ball == null) {
+                return;
+            }
+
+            if (player.getLocation().distanceSquared(ball.getLocation()) < 2.25) {
+                long now = System.currentTimeMillis();
+                long lastPush = pushCooldowns.getOrDefault(player.getUniqueId(), 0L);
+                if (now - lastPush >= 500) {
+                    pushCooldowns.put(player.getUniqueId(), now);
+
+                    Vector direction = ball.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
+                    direction.setY(0.35);
+
+                    double pushPower = miniFootManager.getBallPushMultiplier();
+                    ball.setVelocity(direction.multiply(pushPower));
+
+                    player.playSound(player.getLocation(), Sound.ENTITY_SLIME_SQUISH_SMALL, 0.5f, 1.0f);
+                }
             }
             return;
         }

@@ -261,6 +261,10 @@ public class MiniFootManager {
         return ball != null && ball.equals(slime);
     }
 
+    public Slime getBall() {
+        return ball;
+    }
+
     public double getBallPushMultiplier() {
         return config.getDouble("ball-push-multiplier", 1.2);
     }

@@ -1,6 +1,7 @@
 package net.heneria.henerialobby.minifoot; // Assurez-vous que le package est correct
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -13,15 +14,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -32,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class MiniFootManager implements Listener {
+public class MiniFootManager {
 
     private final JavaPlugin plugin;
     private Slime ball;
@@ -40,6 +39,7 @@ public class MiniFootManager implements Listener {
     private final Set<UUID> redTeam = new HashSet<>();
     private final Map<String, Integer> scores = new HashMap<>();
     private final Map<UUID, Long> pushCooldown = new HashMap<>();
+    private boolean frozen = false;
 
     // Variables de configuration
     private boolean enabled;
@@ -81,7 +81,7 @@ public class MiniFootManager implements Listener {
                     getLocation(world, config.getConfigurationSection("teams.red.goal.pos2")));
         }
 
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        plugin.getServer().getPluginManager().registerEvents(new MiniFootListener(this), plugin);
         spawnBall();
         startGameLoop();
         resetScores();
@@ -98,7 +98,7 @@ public class MiniFootManager implements Listener {
     private void resetScores() {
         scores.put("blue", 0);
         scores.put("red", 0);
-        // Mettre à jour le scoreboard pour tous les joueurs en jeu
+        updateScoreboards();
     }
 
     public Cuboid getArenaZone() {
@@ -106,11 +106,62 @@ public class MiniFootManager implements Listener {
     }
 
     public void addPlayerToTeam(Player player) {
-        addPlayer(player);
+        if (isInGame(player)) return;
+        if (blueTeam.size() + redTeam.size() >= maxPlayers) return;
+        // determine smallest team
+        Set<UUID> team = blueTeam.size() <= redTeam.size() ? blueTeam : redTeam;
+        team.add(player.getUniqueId());
+        boolean blue = team == blueTeam;
+
+        // clear inventory and give armor
+        player.getInventory().clear();
+        giveTeamArmor(player, blue);
+
+        // teleport to spawn looking at ball
+        Location spawn = blue ? blueSpawn : redSpawn;
+        if (spawn != null) {
+            Location dest = spawn.clone();
+            if (ball != null) {
+                dest.setDirection(ball.getLocation().toVector().subtract(dest.toVector()));
+            }
+            player.teleport(dest);
+        }
+
+        // show scoreboard next tick
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            updateScoreboard(player);
+        });
+
+        updateScoreboards();
     }
 
     public void removePlayerFromGame(Player player) {
-        removePlayer(player);
+        UUID id = player.getUniqueId();
+        if (!isInGame(id)) return;
+        blueTeam.remove(id);
+        redTeam.remove(id);
+        pushCooldown.remove(id);
+
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+
+        if (plugin instanceof net.heneria.henerialobby.HeneriaLobby hl) {
+            var selector = hl.getServerSelector();
+            if (selector != null) {
+                player.getInventory().setItem(selector.getSelectorSlot(), selector.getSelectorItem());
+            }
+            var vis = hl.getVisibilityManager();
+            if (vis != null) {
+                var mode = vis.getMode(player);
+                player.getInventory().setItem(vis.getSlot(), new ItemStack(vis.getMaterial(mode)));
+            }
+            hl.updateDisplays(player);
+        }
+
+        // teleport to lobby spawn via command
+        player.performCommand("lobby");
+
+        updateScoreboards();
     }
 
     public void spawnBall() {
@@ -157,103 +208,127 @@ public class MiniFootManager implements Listener {
         }.runTaskTimer(plugin, 0L, 1L); // S'exécute toutes les ticks
     }
 
+    public void pushBall(Player player) {
+        if (frozen) return;
+        if (ball == null || !ball.isValid()) return;
+        if (player.getLocation().distanceSquared(ball.getLocation()) > 2.25) return;
+        long now = System.currentTimeMillis();
+        long last = pushCooldown.getOrDefault(player.getUniqueId(), 0L);
+        if (now - last < 200) return;
+        pushCooldown.put(player.getUniqueId(), now);
+        Vector dir = ball.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(pushMultiplier);
+        ball.setVelocity(dir);
+    }
+
+    private java.util.List<Player> getPlayers() {
+        java.util.List<Player> list = new java.util.ArrayList<>();
+        for (UUID id : blueTeam) {
+            Player p = Bukkit.getPlayer(id);
+            if (p != null) list.add(p);
+        }
+        for (UUID id : redTeam) {
+            Player p = Bukkit.getPlayer(id);
+            if (p != null) list.add(p);
+        }
+        return list;
+    }
+
+    private void updateScoreboard(Player player) {
+        var manager = Bukkit.getScoreboardManager();
+        if (manager == null) return;
+        Scoreboard board = manager.getNewScoreboard();
+        Objective obj = board.registerNewObjective("minifoot", "dummy");
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+        obj.setDisplayName(ChatColor.GOLD + "MiniFoot");
+        obj.getScore(ChatColor.BLUE + "Bleus: " + scores.get("blue")).setScore(2);
+        obj.getScore(ChatColor.RED + "Rouges: " + scores.get("red")).setScore(1);
+        obj.getScore(ChatColor.YELLOW + "Max: " + scoreToWin).setScore(0);
+        player.setScoreboard(board);
+    }
+
+    private void updateScoreboards() {
+        getPlayers().forEach(this::updateScoreboard);
+    }
+
+    private void teleportTeamsToSpawn() {
+        for (UUID uuid : blueTeam) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null && blueSpawn != null) p.teleport(blueSpawn);
+        }
+        for (UUID uuid : redTeam) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null && redSpawn != null) p.teleport(redSpawn);
+        }
+    }
+
+    private void freezePlayers(int seconds, Runnable after) {
+        frozen = true;
+        for (Player p : getPlayers()) {
+            p.setWalkSpeed(0f);
+            p.setFlySpeed(0f);
+        }
+        new BukkitRunnable() {
+            int count = seconds;
+
+            @Override
+            public void run() {
+                for (Player p : getPlayers()) {
+                    p.sendTitle(ChatColor.YELLOW + String.valueOf(count), "", 0, 20, 0);
+                }
+                if (count-- <= 0) {
+                    for (Player p : getPlayers()) {
+                        p.setWalkSpeed(0.2f);
+                        p.setFlySpeed(0.1f);
+                        p.sendTitle("", "", 0, 0, 0);
+                    }
+                    frozen = false;
+                    cancel();
+                    if (after != null) after.run();
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
+    }
+
+    private void endGame(String winningTeam) {
+        String title = winningTeam.equals("blue") ? ChatColor.BLUE + "Victoire des Bleus" : ChatColor.RED + "Victoire des Rouges";
+        getPlayers().forEach(p -> p.sendTitle(title, "", 10, 60, 10));
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player p : new java.util.ArrayList<>(getPlayers())) {
+                    removePlayerFromGame(p);
+                }
+                resetScores();
+                spawnBall();
+            }
+        }.runTaskLater(plugin, 15 * 20L);
+    }
+
     private void handleGoal(String scoringTeam) {
         int newScore = scores.get(scoringTeam) + 1;
         scores.put(scoringTeam, newScore);
 
-        // Annoncer le but, etc.
-        for (UUID uuid : blueTeam) {
-            Player p = Bukkit.getPlayer(uuid);
-            if (p != null) p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
-        }
-        for (UUID uuid : redTeam) {
-            Player p = Bukkit.getPlayer(uuid);
-            if (p != null) p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
-        }
-
-        ball.teleport(ballSpawn);
-        ball.setVelocity(new Vector(0, 0, 0));
-
-        // Téléporter tous les joueurs à leur spawn
-        blueTeam.forEach(uuid -> {
-            Player p = Bukkit.getPlayer(uuid);
-            if (p != null && blueSpawn != null) p.teleport(blueSpawn);
-        });
-        redTeam.forEach(uuid -> {
-            Player p = Bukkit.getPlayer(uuid);
-            if (p != null && redSpawn != null) p.teleport(redSpawn);
+        // play sound and title
+        String title = scoringTeam.equals("blue") ? ChatColor.BLUE + "But des Bleus" : ChatColor.RED + "But des Rouges";
+        getPlayers().forEach(p -> {
+            p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+            p.sendTitle(title, "", 10, 40, 10);
         });
 
-        if (newScore >= scoreToWin) {
-            // Gérer la fin de partie
-            // Annoncer le gagnant, attendre 15s, kicker tout le monde, et resetScores()
-            resetScores();
-        } else {
-            // Lancer le compte à rebours de 3s avant de pouvoir bouger
-        }
-    }
-
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
-        // Optimisation : on ne fait rien si le joueur n'a pas changé de bloc
-        if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
-            event.getFrom().getBlockY() == event.getTo().getBlockY() &&
-            event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
-            return;
+        // reset ball
+        if (ballSpawn != null && ball != null) {
+            ball.teleport(ballSpawn);
+            ball.setVelocity(new Vector(0, 0, 0));
         }
 
-        Player player = event.getPlayer();
-        Location to = event.getTo();
-        Location from = event.getFrom();
-        
-        Cuboid arenaZone = getArenaZone();
-        if (arenaZone == null) return; // Pas d'arène configurée
+        teleportTeamsToSpawn();
+        updateScoreboards();
 
-        boolean isNowInside = arenaZone.contains(to);
-        boolean wasPreviouslyInside = arenaZone.contains(from);
-
-        // --- LOGIQUE D'ENTRÉE ---
-        // Si le joueur n'était PAS dedans avant ET est DEDANS maintenant
-        if (isNowInside && !wasPreviouslyInside) {
-            // Appeler la méthode qui fait rejoindre une équipe au joueur.
-            addPlayerToTeam(player);
-        }
-        // --- LOGIQUE DE SORTIE ---
-        // Si le joueur ÉTAIT dedans avant ET N'EST PLUS DEDANS maintenant
-        else if (!isNowInside && wasPreviouslyInside) {
-            // Appeler la méthode qui fait quitter la partie au joueur.
-            removePlayerFromGame(player);
-        }
-    }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        // Retirer le joueur de la partie s'il se déconnecte
-        removePlayer(event.getPlayer());
-    }
-
-    @EventHandler
-    public void onArmorRemove(InventoryClickEvent event) {
-        // Bloquer le retrait de l'armure si le joueur est en jeu
-        if (event.getWhoClicked() instanceof Player && isInGame(event.getWhoClicked().getUniqueId())) {
-            if (event.getSlot() >= 36 && event.getSlot() <= 39) {
-                event.setCancelled(true);
+        freezePlayers(3, () -> {
+            if (newScore >= scoreToWin) {
+                endGame(scoringTeam);
             }
-        }
-    }
-
-    private void addPlayer(Player p) {
-        if (isInGame(p)) return;
-        if (blueTeam.size() + redTeam.size() >= maxPlayers) return;
-        Set<UUID> team = blueTeam.size() <= redTeam.size() ? blueTeam : redTeam;
-        team.add(p.getUniqueId());
-        boolean blue = team == blueTeam;
-        giveTeamArmor(p, blue);
-        if (blue && blueSpawn != null) {
-            p.teleport(blueSpawn);
-        } else if (!blue && redSpawn != null) {
-            p.teleport(redSpawn);
-        }
+        });
     }
 
     private void giveTeamArmor(Player p, boolean blue) {
@@ -277,13 +352,6 @@ public class MiniFootManager implements Listener {
         meta.setColor(color);
         boots.setItemMeta(meta);
         p.getInventory().setArmorContents(new ItemStack[]{boots, legs, chest, helmet});
-    }
-
-    private void removePlayer(Player p) {
-        UUID id = p.getUniqueId();
-        blueTeam.remove(id);
-        redTeam.remove(id);
-        p.getInventory().setArmorContents(null);
     }
 
     public boolean isInGame(Player p) {

@@ -6,3 +6,6 @@ spawn:
   blue: {}
   red: {}
 ballspawn: {}
+ball:
+  push-force: 1.0
+  friction: 0.96

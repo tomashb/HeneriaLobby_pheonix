@@ -389,5 +389,9 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         return miniFootManager;
     }
 
+    public SpawnManager getSpawnManager() {
+        return spawnManager;
+    }
+
 }
 

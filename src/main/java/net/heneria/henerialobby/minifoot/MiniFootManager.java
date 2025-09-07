@@ -9,11 +9,13 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
-import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -235,6 +237,8 @@ public class MiniFootManager {
     }
 
     public void spawnBall() {
+        removeOldBalls();
+
         Location loc = loadLocationFromConfig(plugin, "ball-spawn");
         if (loc == null) {
             plugin.getLogger().warning("[DEBUG] Impossible de faire apparaitre le ballon : emplacement non défini.");
@@ -253,13 +257,14 @@ public class MiniFootManager {
         ball.setInvulnerable(true);
         ball.setSilent(true);
         ball.setCollidable(true);
+        ball.setMetadata("heneria_football", new FixedMetadataValue(plugin, true));
 
         this.ball = ball;
         plugin.getLogger().info("Le ballon de Mini-Foot a été créé avec succès.");
     }
 
-    public boolean isBall(Slime slime) {
-        return ball != null && ball.equals(slime);
+    public boolean isTheFootball(Entity entity) {
+        return entity instanceof Slime && entity.hasMetadata("heneria_football");
     }
 
     public Slime getBall() {
@@ -340,6 +345,33 @@ public class MiniFootManager {
             config.save(configFile);
         } catch (IOException e) {
             plugin.getLogger().severe("Could not save minifoot.yml: " + e.getMessage());
+        }
+    }
+
+    private void removeOldBalls() {
+        if (arenaPos1 == null || arenaPos2 == null) {
+            return;
+        }
+
+        World world = arenaPos1.getWorld();
+        if (world == null) {
+            return;
+        }
+
+        double minX = Math.min(arenaPos1.getX(), arenaPos2.getX());
+        double maxX = Math.max(arenaPos1.getX(), arenaPos2.getX());
+        double minY = Math.min(arenaPos1.getY(), arenaPos2.getY());
+        double maxY = Math.max(arenaPos1.getY(), arenaPos2.getY());
+        double minZ = Math.min(arenaPos1.getZ(), arenaPos2.getZ());
+        double maxZ = Math.max(arenaPos1.getZ(), arenaPos2.getZ());
+
+        for (Slime slime : world.getEntitiesByClass(Slime.class)) {
+            Location loc = slime.getLocation();
+            if (loc.getX() >= minX && loc.getX() <= maxX
+                    && loc.getY() >= minY && loc.getY() <= maxY
+                    && loc.getZ() >= minZ && loc.getZ() <= maxZ) {
+                slime.remove();
+            }
         }
     }
 }

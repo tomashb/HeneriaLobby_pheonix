@@ -105,19 +105,12 @@ public class MiniFootManager {
         teamPlayers.get(team).add(player.getUniqueId());
         playersInGame.add(player.getUniqueId());
 
-        player.sendMessage(plugin.getMessage("minifoot-join-" + team));
-        var manager = Bukkit.getScoreboardManager();
-        plugin.getLogger().info("[DEBUG] Tentative d'application du scoreboard de mini-foot pour " + player.getName());
-        if (manager != null) {
-            Scoreboard board = manager.getNewScoreboard();
-            Objective objective = board.registerNewObjective("minifoot", "dummy");
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            objective.setDisplayName(ChatColor.GOLD + "Mini-Foot");
-            objective.getScore(ChatColor.BLUE + "Bleu: 0").setScore(2);
-            objective.getScore(ChatColor.RED + "Rouge: 0").setScore(1);
-            objective.getScore(ChatColor.YELLOW + "Objectif: 3 buts").setScore(0);
-            player.setScoreboard(board);
-        }
+        String teamColor = team.equals("blue") ? ChatColor.BLUE.toString() : ChatColor.RED.toString();
+        String teamName = team.equals("blue") ? "Bleue" : "Rouge";
+        String joinMsg = plugin.getMessage("minifoot.join-team")
+                .replace("%team_color%", teamColor)
+                .replace("%team_name%", teamName);
+        player.sendMessage(plugin.applyPlaceholders(player, joinMsg));
 
         player.getInventory().clear();
         player.getInventory().setArmorContents(null);
@@ -145,9 +138,31 @@ public class MiniFootManager {
         player.getInventory().setBoots(boots);
 
         Location spawn = loadLocationFromConfig(plugin, "teams." + team + ".spawn");
+        Location ballSpawn = loadLocationFromConfig(plugin, "ball-spawn");
         if (spawn != null) {
+            if (ballSpawn != null) {
+                spawn.setDirection(ballSpawn.toVector().subtract(spawn.toVector()));
+            }
             plugin.getLogger().info("[DEBUG] Téléportation de " + player.getName() + " au spawn de l'équipe " + team + " aux coordonnées : " + spawn.toString());
             player.teleport(spawn);
+        }
+
+        var manager = Bukkit.getScoreboardManager();
+        plugin.getLogger().info("[DEBUG] Tentative d'application du scoreboard de mini-foot pour " + player.getName());
+        if (manager != null) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                Scoreboard board = manager.getNewScoreboard();
+                Objective objective = board.registerNewObjective("minifoot", "dummy");
+                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+                objective.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "★ MINI-FOOT ★");
+                objective.getScore(ChatColor.WHITE + "Objectif : " + ChatColor.GREEN + "3 Buts" + ChatColor.RESET).setScore(6);
+                objective.getScore(ChatColor.DARK_GRAY.toString()).setScore(5);
+                objective.getScore(ChatColor.BLUE + "" + ChatColor.BOLD + "Équipe Bleue").setScore(4);
+                objective.getScore(ChatColor.BLUE + "" + ChatColor.BOLD + "» " + ChatColor.WHITE + "0").setScore(3);
+                objective.getScore(ChatColor.RED + "" + ChatColor.BOLD + "Équipe Rouge").setScore(2);
+                objective.getScore(ChatColor.RED + "" + ChatColor.BOLD + "» " + ChatColor.WHITE + "0").setScore(1);
+                player.setScoreboard(board);
+            }, 1L);
         }
 
         checkStart();
@@ -198,6 +213,7 @@ public class MiniFootManager {
             @Override
             public void run() {
                 if (time <= 0) {
+                    spawnBall();
                     for (UUID uuid : playersInGame) {
                         Player p = Bukkit.getPlayer(uuid);
                         if (p != null) {
@@ -218,6 +234,24 @@ public class MiniFootManager {
                 time--;
             }
         }.runTaskTimer(plugin, 0L, 20L);
+    }
+
+    public void spawnBall() {
+        Location loc = loadLocationFromConfig(plugin, "ball-spawn");
+        if (loc == null) {
+            plugin.getLogger().warning("[DEBUG] Impossible de faire apparaitre le ballon : emplacement non défini.");
+            return;
+        }
+        World world = loc.getWorld();
+        if (world == null) {
+            plugin.getLogger().warning("[DEBUG] Impossible de faire apparaitre le ballon : monde introuvable.");
+            return;
+        }
+        world.spawn(loc, org.bukkit.entity.Slime.class, slime -> {
+            slime.setSize(1);
+        });
+        plugin.getLogger().info("[DEBUG] La partie commence, apparition du ballon aux coordonnées "
+                + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ".");
     }
 
     /**

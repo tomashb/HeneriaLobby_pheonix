@@ -110,6 +110,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         lobbyWorlds = new java.util.HashSet<>(getConfig().getStringList("lobby-worlds"));
         joinEffectsManager = new JoinEffectsManager(this);
         miniFootManager = new MiniFootManager(this);
+        miniFootManager.spawnBall();
 
         // Debug welcome title configuration loading
         ConfigurationSection welcome = getConfig().getConfigurationSection("interface-and-chat.welcome-title");

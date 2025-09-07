@@ -12,7 +12,6 @@ HeneriaLobby est un plugin de lobby tout-en-un conçu pour les serveurs Minecraf
 * **Système de Parkour :** Créez des parcours de parkour avec checkpoints, chronomètre, et records personnels.
 * **Commandes Personnalisées :** Définissez vos propres commandes d'information (ex: `/discord`, `/site`) via un simple fichier de configuration.
 * **Effets de Connexion :** Attribuez des effets cosmétiques (sons, particules) aux joueurs à leur connexion en fonction de leurs permissions.
-* **Mini-Jeu : Mini-Foot :** Une arène de football interactive directement dans le lobby pour divertir les joueurs.
 * **Et bien plus :** Titre de bienvenue, format de chat, intégrations PNJ...
 
 ## ⚙️ Commandes et Permissions

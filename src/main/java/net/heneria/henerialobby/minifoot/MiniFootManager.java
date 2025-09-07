@@ -7,6 +7,8 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -95,6 +97,23 @@ public class MiniFootManager {
                 velocity.setZ(velocity.getZ() * slideFactor);
 
                 ball.setVelocity(velocity);
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+
+        // Task to prevent the ball from jumping
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (ball == null || !ball.isValid() || ball.isDead()) {
+                    return;
+                }
+
+                if (ball.isOnGround() && ball.getVelocity().getY() > 0) {
+                    Vector newVelocity = ball.getVelocity();
+                    newVelocity.setY(0);
+                    ball.setVelocity(newVelocity);
+                    // plugin.getLogger().info("[ANTI-JUMP] Saut du ballon annulé.");
+                }
             }
         }.runTaskTimer(plugin, 0L, 1L);
     }
@@ -252,12 +271,16 @@ public class MiniFootManager {
         Slime ball = (Slime) world.spawnEntity(loc, EntityType.SLIME);
 
         ball.setSize(1);
-        ball.setAI(false);
         ball.setGravity(true);
         ball.setInvulnerable(true);
         ball.setSilent(true);
         ball.setCollidable(true);
         ball.setMetadata("heneria_football", new FixedMetadataValue(plugin, true));
+
+        AttributeInstance speed = ball.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        if (speed != null) {
+            speed.setBaseValue(0.0);
+        }
 
         this.ball = ball;
         plugin.getLogger().info("Le ballon de Mini-Foot a été créé avec succès.");

@@ -212,7 +212,7 @@ public class MiniFootManager {
             slime.setSilent(true);
             slime.setCollidable(true);
             // Applique un effet de lenteur extrême pour éviter qu'il ne se déplace seul
-            slime.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 255, false, false));
+            slime.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 255, false, false));
         });
         plugin.getLogger().info("[DEBUG] Apparition du ballon aux coordonnées "
                 + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ".");

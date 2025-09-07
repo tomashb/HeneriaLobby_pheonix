@@ -5,6 +5,7 @@
 - Implémentation du ballon persistant et de son comportement de base.
 - Implémentation de l'entrée/sortie automatique de l'arène et de la gestion de l'équipement.
 - Implémentation d'un système de physique avancée pour le ballon (poussée, glissade, rebond).
+- Finalisation de la logique de jeu : score, buts, fin de partie et amélioration de l'interface.
 
 ## [2.6.0] - Setup du Mini-Foot
 - Ajout des commandes d'administration pour le Mini-Foot.

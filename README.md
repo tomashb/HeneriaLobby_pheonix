@@ -62,6 +62,20 @@ Marchez simplement dans l'arène pour rejoindre le match. Vous serez automatique
 
 Pour quitter la partie, sortez de la zone de l'arène : votre inventaire est nettoyé, les items du lobby vous sont rendus et le scoreboard du lobby réapparaît.
 
+### Règles du jeu
+
+* Deux équipes s'affrontent et tentent de marquer dans le but adverse.
+* Un but renvoie tous les joueurs à leur spawn et gèle la partie pendant 3 secondes.
+* La première équipe à atteindre **3 buts** remporte le match.
+* Une annonce de victoire est affichée et, 15 secondes plus tard, tous les joueurs sont expulsés de l'arène.
+
+### Configuration `minifoot.yml`
+
+Le fichier `minifoot.yml` contient les positions de l'arène, des buts, des spawns ainsi que la configuration du ballon :
+
+* `ball.push-force` – force appliquée au ballon lors d'une poussée (par défaut `1.0`).
+* `ball.friction` – coefficient de friction appliqué chaque tick pour ralentir le ballon (par défaut `0.96`).
+
 ## 📦 Dépendances
 
 * **Requises :**

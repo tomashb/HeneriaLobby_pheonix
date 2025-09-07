@@ -6,6 +6,11 @@ max-players: 8 # Nombre maximal de joueurs autorisés dans l'arène
 # Multiplicateur pour la puissance de frappe du ballon
 ball-push-multiplier: 1.2
 
+# Facteur de glissade. Plus il est proche de 1.0, plus le ballon glisse longtemps.
+ball-slide-factor: 0.98
+# Facteur de rebond. Négatif pour inverser la direction. Entre -0.7 et -0.9 pour un rebond réaliste.
+ball-bounce-factor: -0.8
+
 arena:
   world: "lobby"
   pos1: {x: 100, y: 64, z: 200}

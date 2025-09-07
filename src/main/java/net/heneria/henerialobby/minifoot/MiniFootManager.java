@@ -13,13 +13,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +54,46 @@ public class MiniFootManager {
                 }
             }
         }.runTaskTimer(plugin, 0L, 100L);
+
+        // Task to handle custom physics for the ball
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (ball == null || ball.isDead() || playersInGame.isEmpty()) {
+                    return;
+                }
+
+                if (arenaPos1 == null || arenaPos2 == null) {
+                    return;
+                }
+
+                Vector velocity = ball.getVelocity();
+                if (velocity.length() < 0.01) {
+                    return;
+                }
+
+                Location nextLocation = ball.getLocation().clone().add(velocity);
+
+                double minX = Math.min(arenaPos1.getX(), arenaPos2.getX());
+                double maxX = Math.max(arenaPos1.getX(), arenaPos2.getX());
+                double minZ = Math.min(arenaPos1.getZ(), arenaPos2.getZ());
+                double maxZ = Math.max(arenaPos1.getZ(), arenaPos2.getZ());
+
+                double bounceFactor = config.getDouble("ball-bounce-factor", -0.8);
+                if (nextLocation.getX() < minX || nextLocation.getX() > maxX) {
+                    velocity.setX(velocity.getX() * bounceFactor);
+                }
+                if (nextLocation.getZ() < minZ || nextLocation.getZ() > maxZ) {
+                    velocity.setZ(velocity.getZ() * bounceFactor);
+                }
+
+                double slideFactor = config.getDouble("ball-slide-factor", 0.98);
+                velocity.setX(velocity.getX() * slideFactor);
+                velocity.setZ(velocity.getZ() * slideFactor);
+
+                ball.setVelocity(velocity);
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
     }
 
     private void setLocation(String path, Location loc) {
@@ -211,8 +250,8 @@ public class MiniFootManager {
             slime.setInvulnerable(true);
             slime.setSilent(true);
             slime.setCollidable(true);
-            // Applique un effet de lenteur extrême pour éviter qu'il ne se déplace seul
-            slime.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 255, false, false));
+            // Disable AI to prevent natural movement such as jumping
+            slime.setAI(false);
         });
         plugin.getLogger().info("[DEBUG] Apparition du ballon aux coordonnées "
                 + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ".");

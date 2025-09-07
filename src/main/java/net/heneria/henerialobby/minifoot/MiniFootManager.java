@@ -25,6 +25,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -277,5 +278,70 @@ public class MiniFootManager implements Listener {
 
     public boolean isInGame(UUID uuid) {
         return blueTeam.contains(uuid) || redTeam.contains(uuid);
+    }
+
+    public void saveArena(Location pos1, Location pos2) {
+        File file = new File(plugin.getDataFolder(), "minifoot.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        config.set("arena.world", pos1.getWorld().getName());
+        config.set("arena.pos1.x", pos1.getX());
+        config.set("arena.pos1.y", pos1.getY());
+        config.set("arena.pos1.z", pos1.getZ());
+        config.set("arena.pos2.x", pos2.getX());
+        config.set("arena.pos2.y", pos2.getY());
+        config.set("arena.pos2.z", pos2.getZ());
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        loadAndStart();
+    }
+
+    public void saveGoal(String team, Location pos1, Location pos2) {
+        File file = new File(plugin.getDataFolder(), "minifoot.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        String base = "teams." + team + ".goal";
+        config.set(base + ".pos1.x", pos1.getX());
+        config.set(base + ".pos1.y", pos1.getY());
+        config.set(base + ".pos1.z", pos1.getZ());
+        config.set(base + ".pos2.x", pos2.getX());
+        config.set(base + ".pos2.y", pos2.getY());
+        config.set(base + ".pos2.z", pos2.getZ());
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        loadAndStart();
+    }
+
+    public void saveSpawn(String team, Location loc) {
+        File file = new File(plugin.getDataFolder(), "minifoot.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        String base = "teams." + team + ".spawn";
+        config.set(base + ".x", loc.getX());
+        config.set(base + ".y", loc.getY());
+        config.set(base + ".z", loc.getZ());
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        loadAndStart();
+    }
+
+    public void saveBallSpawn(Location loc) {
+        File file = new File(plugin.getDataFolder(), "minifoot.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        config.set("ball-spawn.x", loc.getX());
+        config.set("ball-spawn.y", loc.getY());
+        config.set("ball-spawn.z", loc.getZ());
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        loadAndStart();
     }
 }

@@ -88,15 +88,26 @@ public class MiniFootListener implements Listener {
             // --- TRACE 2 ---
             plugin.getLogger().info("[TRACE 2] Le joueur est DÉJÀ en partie et reste dans la zone.");
 
+            // --- TRACE PUSH-1 ---
+            plugin.getLogger().info("[PUSH-DEBUG-1] Le joueur '" + player.getName() + "' est en jeu, vérification de la collision.");
+
             Slime ball = miniFootManager.getBall();
             if (ball == null) {
                 return;
             }
 
-            if (player.getLocation().distanceSquared(ball.getLocation()) < 2.25) {
+            double distanceSquared = player.getLocation().distanceSquared(ball.getLocation());
+            // --- TRACE PUSH-2 ---
+            plugin.getLogger().info("[PUSH-DEBUG-2] Distance (au carré) avec le ballon : " + distanceSquared);
+
+            if (distanceSquared < 2.25) {
+                // --- TRACE PUSH-3 ---
+                plugin.getLogger().info("[PUSH-DEBUG-3] Collision détectée !");
+
                 long now = System.currentTimeMillis();
                 long lastPush = pushCooldowns.getOrDefault(player.getUniqueId(), 0L);
                 if (now - lastPush >= 500) {
+                    plugin.getLogger().info("[PUSH-DEBUG-4] Cooldown OK. Tentative d'application de la vélocité.");
                     pushCooldowns.put(player.getUniqueId(), now);
 
                     Vector direction = ball.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
@@ -104,6 +115,9 @@ public class MiniFootListener implements Listener {
 
                     double pushPower = miniFootManager.getBallPushMultiplier();
                     ball.setVelocity(direction.multiply(pushPower));
+
+                    // --- TRACE PUSH-5 ---
+                    plugin.getLogger().info("[PUSH-DEBUG-5] Vélocité appliquée. Nouvelle vélocité du ballon : " + ball.getVelocity().toString());
 
                     player.playSound(player.getLocation(), Sound.ENTITY_SLIME_SQUISH_SMALL, 0.5f, 1.0f);
                 }

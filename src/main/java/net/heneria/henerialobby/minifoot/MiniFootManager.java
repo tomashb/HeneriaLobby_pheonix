@@ -11,6 +11,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -244,17 +245,17 @@ public class MiniFootManager {
             plugin.getLogger().warning("[DEBUG] Impossible de faire apparaitre le ballon : monde introuvable.");
             return;
         }
-        ball = world.spawn(loc, Slime.class, slime -> {
-            slime.setSize(1);
-            slime.setGravity(true);
-            slime.setInvulnerable(true);
-            slime.setSilent(true);
-            slime.setCollidable(true);
-            // Disable AI to prevent natural movement such as jumping
-            slime.setAI(false);
-        });
-        plugin.getLogger().info("[DEBUG] Apparition du ballon aux coordonnées "
-                + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ".");
+        Slime ball = (Slime) world.spawnEntity(loc, EntityType.SLIME);
+
+        ball.setSize(1);
+        ball.setAI(false);
+        ball.setGravity(true);
+        ball.setInvulnerable(true);
+        ball.setSilent(true);
+        ball.setCollidable(true);
+
+        this.ball = ball;
+        plugin.getLogger().info("Le ballon de Mini-Foot a été créé avec succès.");
     }
 
     public boolean isBall(Slime slime) {

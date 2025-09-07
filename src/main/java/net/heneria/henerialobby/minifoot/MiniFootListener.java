@@ -92,7 +92,7 @@ public class MiniFootListener implements Listener {
             plugin.getLogger().info("[PUSH-DEBUG-1] Le joueur '" + player.getName() + "' est en jeu, vérification de la collision.");
 
             Slime ball = miniFootManager.getBall();
-            if (ball == null) {
+            if (ball == null || !miniFootManager.isTheFootball(ball)) {
                 return;
             }
 

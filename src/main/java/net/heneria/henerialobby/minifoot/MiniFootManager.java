@@ -101,6 +101,18 @@ public class MiniFootManager implements Listener {
         // Mettre à jour le scoreboard pour tous les joueurs en jeu
     }
 
+    public Cuboid getArenaZone() {
+        return arena;
+    }
+
+    public void addPlayerToTeam(Player player) {
+        addPlayer(player);
+    }
+
+    public void removePlayerFromGame(Player player) {
+        removePlayer(player);
+    }
+
     public void spawnBall() {
         // Logique pour nettoyer les anciens slimes et en créer un nouveau
         if (ball != null && !ball.isDead()) {
@@ -183,32 +195,34 @@ public class MiniFootManager implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
-        if (event.getFrom().getBlockX() == event.getTo().getBlockX() && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) return;
-
-        Player player = event.getPlayer();
-        boolean isInsideArena = arena != null && arena.contains(player.getLocation());
-        boolean wasInsideArena = arena != null && arena.contains(event.getFrom());
-
-        // Logique pour rejoindre
-        if (isInsideArena && !wasInsideArena) {
-            // Le joueur entre dans l'arène
-            addPlayer(player);
-        } else if (!isInsideArena && wasInsideArena) {
-            removePlayer(player);
+        // Optimisation : on ne fait rien si le joueur n'a pas changé de bloc
+        if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
+            event.getFrom().getBlockY() == event.getTo().getBlockY() &&
+            event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
+            return;
         }
 
-        // Logique pour pousser le ballon (uniquement si le joueur est en jeu)
-        if (isInGame(player) && ball != null) {
-            if (player.getLocation().distanceSquared(ball.getLocation()) < 2.25) {
-                long now = System.currentTimeMillis();
-                long last = pushCooldown.getOrDefault(player.getUniqueId(), 0L);
-                if (now - last > 500) {
-                    Vector direction = ball.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
-                    direction.multiply(pushMultiplier);
-                    ball.setVelocity(ball.getVelocity().add(direction));
-                    pushCooldown.put(player.getUniqueId(), now);
-                }
-            }
+        Player player = event.getPlayer();
+        Location to = event.getTo();
+        Location from = event.getFrom();
+        
+        Cuboid arenaZone = getArenaZone();
+        if (arenaZone == null) return; // Pas d'arène configurée
+
+        boolean isNowInside = arenaZone.contains(to);
+        boolean wasPreviouslyInside = arenaZone.contains(from);
+
+        // --- LOGIQUE D'ENTRÉE ---
+        // Si le joueur n'était PAS dedans avant ET est DEDANS maintenant
+        if (isNowInside && !wasPreviouslyInside) {
+            // Appeler la méthode qui fait rejoindre une équipe au joueur.
+            addPlayerToTeam(player);
+        }
+        // --- LOGIQUE DE SORTIE ---
+        // Si le joueur ÉTAIT dedans avant ET N'EST PLUS DEDANS maintenant
+        else if (!isNowInside && wasPreviouslyInside) {
+            // Appeler la méthode qui fait quitter la partie au joueur.
+            removePlayerFromGame(player);
         }
     }
 

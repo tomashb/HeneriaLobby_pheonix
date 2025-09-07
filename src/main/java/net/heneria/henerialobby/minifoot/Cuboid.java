@@ -5,28 +5,25 @@ import org.bukkit.World;
 
 public class Cuboid {
     private final World world;
-    private final double minX, minY, minZ;
-    private final double maxX, maxY, maxZ;
+    private final int minX, minY, minZ;
+    private final int maxX, maxY, maxZ;
 
-    public Cuboid(Location loc1, Location loc2) {
-        this.world = loc1.getWorld();
-        this.minX = Math.min(loc1.getX(), loc2.getX());
-        this.minY = Math.min(loc1.getY(), loc2.getY());
-        this.minZ = Math.min(loc1.getZ(), loc2.getZ());
-        this.maxX = Math.max(loc1.getX(), loc2.getX());
-        this.maxY = Math.max(loc1.getY(), loc2.getY());
-        this.maxZ = Math.max(loc1.getZ(), loc2.getZ());
+    public Cuboid(Location pos1, Location pos2) {
+        this.world = pos1.getWorld();
+        this.minX = Math.min(pos1.getBlockX(), pos2.getBlockX());
+        this.minY = Math.min(pos1.getBlockY(), pos2.getBlockY());
+        this.minZ = Math.min(pos1.getBlockZ(), pos2.getBlockZ());
+        this.maxX = Math.max(pos1.getBlockX(), pos2.getBlockX());
+        this.maxY = Math.max(pos1.getBlockY(), pos2.getBlockY());
+        this.maxZ = Math.max(pos1.getBlockZ(), pos2.getBlockZ());
     }
 
-    public boolean contains(Location loc) {
-        if (loc == null || loc.getWorld() != world) {
+    public boolean contains(Location location) {
+        if (!location.getWorld().equals(this.world)) {
             return false;
         }
-        double x = loc.getX();
-        double y = loc.getY();
-        double z = loc.getZ();
-        return x >= minX && x <= maxX &&
-               y >= minY && y <= maxY &&
-               z >= minZ && z <= maxZ;
+        return location.getBlockX() >= minX && location.getBlockX() <= maxX &&
+               location.getBlockY() >= minY && location.getBlockY() <= maxY &&
+               location.getBlockZ() >= minZ && location.getBlockZ() <= maxZ;
     }
 }

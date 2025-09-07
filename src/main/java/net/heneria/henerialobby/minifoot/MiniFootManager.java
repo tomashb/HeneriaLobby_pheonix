@@ -43,6 +43,8 @@ public class MiniFootManager {
     private final Set<UUID> playersInGame = new HashSet<>();
     private final Map<String, Set<UUID>> teamPlayers = new HashMap<>();
     private Slime ball;
+    private int blueScore;
+    private int redScore;
 
     public MiniFootManager(HeneriaLobby plugin) {
         this.plugin = plugin;
@@ -60,18 +62,40 @@ public class MiniFootManager {
             }
         }.runTaskTimer(plugin, 0L, 100L);
 
-        // Task to handle custom physics for the ball
+        // Main game loop: anti-jump, goal detection and physics
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (ball == null || ball.isDead() || playersInGame.isEmpty()) {
+                Slime ball = getBall();
+                if (ball == null || !ball.isValid() || ball.isDead()) {
+                    return; // Pas de ballon, on arrête tout.
+                }
+
+                if (playersInGame.isEmpty() || arenaPos1 == null || arenaPos2 == null) {
                     return;
                 }
 
-                if (arenaPos1 == null || arenaPos2 == null) {
+                // --- 1. LOGIQUE ANTI-SAUT (PRIORITAIRE) ---
+                if (ball.isOnGround() && ball.getVelocity().getY() > 0) {
+                    Vector velocity = ball.getVelocity();
+                    velocity.setY(0);
+                    ball.setVelocity(velocity);
+                }
+
+                // --- 2. LOGIQUE DE DÉTECTION DES BUTS ---
+                Location ballLocation = ball.getLocation();
+
+                if (isLocationInGoal(ballLocation, "red")) {
+                    goalScored("blue");
                     return;
                 }
 
+                if (isLocationInGoal(ballLocation, "blue")) {
+                    goalScored("red");
+                    return;
+                }
+
+                // --- 3. PHYSIQUE DE GLISSADE ET REBONDS ---
                 Vector velocity = ball.getVelocity();
                 if (velocity.length() < 0.01) {
                     return;
@@ -97,23 +121,6 @@ public class MiniFootManager {
                 velocity.setZ(velocity.getZ() * slideFactor);
 
                 ball.setVelocity(velocity);
-            }
-        }.runTaskTimer(plugin, 0L, 1L);
-
-        // Task to prevent the ball from jumping
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (ball == null || !ball.isValid() || ball.isDead()) {
-                    return;
-                }
-
-                if (ball.isOnGround() && ball.getVelocity().getY() > 0) {
-                    Vector newVelocity = ball.getVelocity();
-                    newVelocity.setY(0);
-                    ball.setVelocity(newVelocity);
-                    // plugin.getLogger().info("[ANTI-JUMP] Saut du ballon annulé.");
-                }
             }
         }.runTaskTimer(plugin, 0L, 1L);
     }
@@ -302,6 +309,57 @@ public class MiniFootManager {
         return plugin;
     }
 
+    public boolean isLocationInGoal(Location location, String teamName) {
+        Location pos1 = loadLocationFromConfig(plugin, "teams." + teamName + ".goal.pos1");
+        Location pos2 = loadLocationFromConfig(plugin, "teams." + teamName + ".goal.pos2");
+        if (pos1 == null || pos2 == null) {
+            plugin.getLogger().warning("[GOAL-DEBUG] Coordonnées du but '" + teamName + "' introuvables.");
+            return false;
+        }
+
+        plugin.getLogger().info("[GOAL-DEBUG] Vérification du but " + teamName + ". Position du ballon: " + location.toVector());
+
+        double minX = Math.min(pos1.getX(), pos2.getX());
+        double maxX = Math.max(pos1.getX(), pos2.getX());
+        double minY = Math.min(pos1.getY(), pos2.getY());
+        double maxY = Math.max(pos1.getY(), pos2.getY());
+        double minZ = Math.min(pos1.getZ(), pos2.getZ());
+        double maxZ = Math.max(pos1.getZ(), pos2.getZ());
+
+        plugin.getLogger().info("[GOAL-DEBUG] Limites du but: X=" + minX + " à " + maxX + ", Y=" + minY + " à " + maxY + ", Z=" + minZ + " à " + maxZ);
+
+        if (!location.getWorld().equals(pos1.getWorld())) {
+            return false;
+        }
+
+        return location.getX() >= minX && location.getX() <= maxX &&
+               location.getY() >= minY && location.getY() <= maxY &&
+               location.getZ() >= minZ && location.getZ() <= maxZ;
+    }
+
+    public void goalScored(String team) {
+        plugin.getLogger().info("[GOAL] But pour l'équipe " + team + " !");
+        if ("blue".equalsIgnoreCase(team)) {
+            blueScore++;
+        } else {
+            redScore++;
+        }
+
+        spawnBall();
+
+        for (Map.Entry<String, Set<UUID>> entry : teamPlayers.entrySet()) {
+            String teamName = entry.getKey();
+            Location spawn = loadLocationFromConfig(plugin, "teams." + teamName + ".spawn");
+            for (UUID uuid : entry.getValue()) {
+                Player p = Bukkit.getPlayer(uuid);
+                if (p != null && spawn != null) {
+                    p.teleport(spawn);
+                    applyMiniFootScoreboard(p);
+                }
+            }
+        }
+    }
+
     private void applyMiniFootScoreboard(Player player) {
         var manager = Bukkit.getScoreboardManager();
         plugin.getLogger().info("[DEBUG] Tentative d'application du scoreboard de mini-foot pour " + player.getName());
@@ -312,9 +370,10 @@ public class MiniFootManager {
         Objective objective = board.registerNewObjective("minifoot", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         objective.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "  MINI-FOOT  ");
-        objective.getScore(ChatColor.WHITE + "Objectif : " + ChatColor.GREEN + "3 Buts").setScore(4);
-        objective.getScore(ChatColor.BLUE + "Équipe Bleue : " + ChatColor.WHITE + "0").setScore(3);
-        objective.getScore(ChatColor.RED + "Équipe Rouge : " + ChatColor.WHITE + "0").setScore(2);
+        int scoreToWin = config.getInt("score-to-win", 3);
+        objective.getScore(ChatColor.WHITE + "Objectif : " + ChatColor.GREEN + scoreToWin + " Buts").setScore(4);
+        objective.getScore(ChatColor.BLUE + "Équipe Bleue : " + ChatColor.WHITE + blueScore).setScore(3);
+        objective.getScore(ChatColor.RED + "Équipe Rouge : " + ChatColor.WHITE + redScore).setScore(2);
         player.setScoreboard(board);
     }
 

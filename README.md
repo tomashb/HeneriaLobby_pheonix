@@ -53,7 +53,7 @@ HeneriaLobby est un plugin de lobby tout-en-un conçu pour les serveurs Minecraf
 ### Ballon
 
 Le ballon est un **Slime** de taille 1 qui apparaît automatiquement au point défini.
-Il est invulnérable, ne se déplace pas seul et reste plaqué au sol.
+Les joueurs peuvent le pousser en courant dedans : il glisse progressivement sur le sol et rebondit sur les murs de l'arène.
 S'il est détruit ou disparaît, il réapparaît au centre après quelques secondes.
 
 ### Rejoindre et quitter une partie

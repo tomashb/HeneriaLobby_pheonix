@@ -35,10 +35,16 @@ public class MiniFootManager {
     private Slime ball;
     private int respawnCountdown = -1;
 
+    // Physics configuration
+    private final double pushForce;
+    private final double friction;
+
     public MiniFootManager(HeneriaLobby plugin) {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), "minifoot.yml");
         this.config = YamlConfiguration.loadConfiguration(file);
+        this.pushForce = config.getDouble("ball.push-force", 1.0);
+        this.friction = config.getDouble("ball.friction", 0.96);
         startBallTask();
     }
 
@@ -225,6 +231,14 @@ public class MiniFootManager {
         ball = slime;
     }
 
+    public Slime getBall() {
+        return ball;
+    }
+
+    public double getPushForce() {
+        return pushForce;
+    }
+
     private void startBallTask() {
         if (getBallSpawn() == null) {
             return;
@@ -233,21 +247,56 @@ public class MiniFootManager {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (ball == null || ball.isDead() || !ball.isValid()) {
                 if (respawnCountdown == -1) {
-                    respawnCountdown = 3; // seconds before respawn
+                    respawnCountdown = 60; // 3 seconds in ticks
                 } else if (respawnCountdown-- <= 0) {
                     spawnBall();
                     respawnCountdown = -1;
                 }
                 return;
             }
-            if (ball.isOnGround()) {
-                Vector vel = ball.getVelocity();
-                if (vel.getY() != 0) {
-                    vel.setY(0);
-                    ball.setVelocity(vel);
+
+            Vector vel = ball.getVelocity();
+
+            if (ball.isOnGround() && vel.getY() != 0) {
+                vel.setY(0);
+            }
+
+            // Apply friction to horizontal movement
+            vel.setX(vel.getX() * friction);
+            vel.setZ(vel.getZ() * friction);
+
+            Location pos1 = config.getLocation("arena.pos1");
+            Location pos2 = config.getLocation("arena.pos2");
+            Location loc = ball.getLocation();
+            if (pos1 != null && pos2 != null) {
+                double minX = Math.min(pos1.getX(), pos2.getX());
+                double maxX = Math.max(pos1.getX(), pos2.getX());
+                double minZ = Math.min(pos1.getZ(), pos2.getZ());
+                double maxZ = Math.max(pos1.getZ(), pos2.getZ());
+                double x = loc.getX();
+                double z = loc.getZ();
+                boolean bounced = false;
+                if (x <= minX || x >= maxX) {
+                    vel.setX(-vel.getX());
+                    loc.setX(x <= minX ? minX : maxX);
+                    bounced = true;
+                }
+                if (z <= minZ || z >= maxZ) {
+                    vel.setZ(-vel.getZ());
+                    loc.setZ(z <= minZ ? minZ : maxZ);
+                    bounced = true;
+                }
+                if (bounced) {
+                    ball.teleport(loc);
                 }
             }
-        }, 20L, 20L);
+
+            // Stop tiny movements
+            if (Math.abs(vel.getX()) < 0.01) vel.setX(0);
+            if (Math.abs(vel.getZ()) < 0.01) vel.setZ(0);
+
+            ball.setVelocity(vel);
+        }, 1L, 1L);
     }
 
     private void save() {

@@ -56,6 +56,12 @@ Le ballon est un **Slime** de taille 1 qui apparaît automatiquement au point d�
 Il est invulnérable, ne se déplace pas seul et reste plaqué au sol.
 S'il est détruit ou disparaît, il réapparaît au centre après quelques secondes.
 
+### Rejoindre et quitter une partie
+
+Marchez simplement dans l'arène pour rejoindre le match. Vous serez automatiquement placé dans l'équipe ayant le moins de joueurs (maximum 8 joueurs) et équipé d'une armure en cuir aux couleurs de votre équipe.
+
+Pour quitter la partie, sortez de la zone de l'arène : votre inventaire est nettoyé, les items du lobby vous sont rendus et le scoreboard du lobby réapparaît.
+
 ## 📦 Dépendances
 
 * **Requises :**

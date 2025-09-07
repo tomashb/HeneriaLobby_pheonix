@@ -24,8 +24,6 @@ HeneriaLobby est un plugin de lobby tout-en-un conçu pour les serveurs Minecraf
 | `/servers` | (Aucune) | Ouvre le menu des jeux. |
 | `/parkouradmin` | `heneria.lobby.admin.parkour` | Gère les parcours de parkour. |
 | `/parkour` | (Aucune) | Commandes pour le parkour. |
-| `/minifootadmin`| `heneria.lobby.admin.minifoot` | Gère l'arène de mini-foot. |
-| `/minifoot` | (Aucune) | Commandes pour le mini-foot. |
 | `/lobbyadmin reload` | `heneria.lobby.admin.reload` | Recharge les configurations. |
 | ... | `heneria.lobby.bypass.protection` | Ignore les protections du lobby. |
 | ... | `heneria.lobby.canbeseen` | Permet d'être vu en mode VIP. |

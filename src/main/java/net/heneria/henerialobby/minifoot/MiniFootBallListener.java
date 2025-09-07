@@ -1,11 +1,6 @@
 package net.heneria.henerialobby.minifoot;
 
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.util.Vector;
 
 public class MiniFootBallListener implements Listener {
 
@@ -15,18 +10,6 @@ public class MiniFootBallListener implements Listener {
         this.miniFootManager = miniFootManager;
     }
 
-    @EventHandler
-    public void onBallHit(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Slime slime) || !(event.getDamager() instanceof Player player)) {
-            return;
-        }
-        if (!miniFootManager.isBall(slime)) {
-            return;
-        }
-        event.setCancelled(true);
-        Vector direction = slime.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
-        direction.setY(0.3);
-        slime.setVelocity(direction.multiply(miniFootManager.getBallPushMultiplier()));
-        miniFootManager.getPlugin().getLogger().info("[DEBUG-BALL] Vélocité appliquée au ballon : " + slime.getVelocity().toString());
-    }
+    // Ancienne mécanique de tir par clic gauche supprimée.
+    // La poussée du ballon est désormais gérée par contact dans MiniFootListener#onPlayerMove.
 }

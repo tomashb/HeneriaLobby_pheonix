@@ -1,0 +1,8 @@
+arena: {}
+goal:
+  blue: {}
+  red: {}
+spawn:
+  blue: {}
+  red: {}
+ballspawn: {}

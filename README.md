@@ -29,6 +29,27 @@ HeneriaLobby est un plugin de lobby tout-en-un conçu pour les serveurs Minecraf
 | ... | `heneria.lobby.chatcolor` | Permet d'utiliser les couleurs dans le chat. |
 | ... | `heneria.lobby.joineffect.<nom>` | Donne l'effet de connexion `<nom>`. |
 
+## 🎮 Mini-Jeu : Mini-Foot
+
+### Commandes d'administration
+
+| Commande | Permission | Description |
+| :--- | :--- | :--- |
+| `/minifootadmin setarena` | `heneria.lobby.admin.minifoot` | Définit la zone de l'arène. |
+| `/minifootadmin setgoal <blue|red>` | `heneria.lobby.admin.minifoot` | Définit la zone de but bleue ou rouge. |
+| `/minifootadmin setspawn <blue|red>` | `heneria.lobby.admin.minifoot` | Définit le point de spawn d'une équipe. |
+| `/minifootadmin setballspawn` | `heneria.lobby.admin.minifoot` | Définit l'apparition de la balle. |
+| `/minifootadmin help` | `heneria.lobby.admin.minifoot` | Affiche l'aide des commandes. |
+
+### Configuration de l'arène
+
+1. Donnez-vous une **hache en bois**.
+2. Sélectionnez deux coins de la zone avec un clic gauche et un clic droit.
+3. Exécutez `/minifootadmin setarena` pour enregistrer l'arène.
+4. Sélectionnez chaque zone de but puis utilisez `/minifootadmin setgoal <blue|red>`.
+5. Placez-vous sur les points d'apparition des équipes et faites `/minifootadmin setspawn <blue|red>`.
+6. Placez-vous à l'endroit désiré pour la balle et tapez `/minifootadmin setballspawn`.
+
 ## 📦 Dépendances
 
 * **Requises :**

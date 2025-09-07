@@ -17,6 +17,9 @@ import net.heneria.henerialobby.listener.LaunchpadListener;
 import net.heneria.henerialobby.listener.JoinLeaveListener;
 import net.heneria.henerialobby.listener.JoinEffectsListener;
 import net.heneria.henerialobby.listener.InterfaceChatListener;
+import net.heneria.henerialobby.minifoot.MiniFootManager;
+import net.heneria.henerialobby.minifoot.MinifootAdminCommand;
+import net.heneria.henerialobby.minifoot.MinifootSelectionListener;
 import net.heneria.henerialobby.scoreboard.ScoreboardManager;
 import net.heneria.henerialobby.tablist.TablistManager;
 import net.heneria.henerialobby.selector.ServerSelector;
@@ -62,6 +65,7 @@ public class HeneriaLobby extends JavaPlugin {
     private Announcer announcer;
     private HologramManager hologramManager;
     private NPCManager npcManager;
+    private MiniFootManager miniFootManager;
     private java.util.Set<String> lobbyWorlds;
     private final java.util.Map<String, Command> customCommands = new java.util.HashMap<>();
     private HeadDatabaseAPI hdbApi = null;
@@ -98,12 +102,15 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         saveResourceIfNotExists("holograms.yml");
         saveResourceIfNotExists("npcs.yml");
         saveResourceIfNotExists("npc-actions.yml");
+        saveResourceIfNotExists("minifoot.yml");
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
         scoreboardConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "scoreboard.yml"));
         spawnManager = new SpawnManager(this);
         serverSelector = new ServerSelector(this);
         lobbyWorlds = new java.util.HashSet<>(getConfig().getStringList("lobby-worlds"));
         joinEffectsManager = new JoinEffectsManager(this);
+        miniFootManager = new MiniFootManager(this);
+        miniFootManager = new MiniFootManager(this);
 
         // Debug welcome title configuration loading
         ConfigurationSection welcome = getConfig().getConfigurationSection("interface-and-chat.welcome-title");
@@ -133,6 +140,9 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         getCommand("setlobby").setExecutor(new SetLobbyCommand(this, spawnManager));
         getCommand("servers").setExecutor(new ServersCommand(serverSelector));
         getCommand("lobbyadmin").setExecutor(new LobbyAdminCommand(this));
+        MinifootAdminCommand minifootCommand = new MinifootAdminCommand(this, miniFootManager);
+        getCommand("minifootadmin").setExecutor(minifootCommand);
+        getCommand("minifootadmin").setTabCompleter(minifootCommand);
         hologramManager = new HologramManager(this);
         HologramCommand hologramCommand = new HologramCommand(hologramManager);
         getCommand("hologram").setExecutor(hologramCommand);
@@ -148,6 +158,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
             Bukkit.getPluginManager().registerEvents(new ProtectionListener(this), this);
         }
         Bukkit.getPluginManager().registerEvents(new DisplayListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new MinifootSelectionListener(miniFootManager), this);
 
         if (getConfig().getBoolean("player-experience.player-visibility.enabled", true)) {
             visibilityManager = new VisibilityManager(this);
@@ -251,6 +262,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         serverSelector = new ServerSelector(this);
         lobbyWorlds = new java.util.HashSet<>(getConfig().getStringList("lobby-worlds"));
         joinEffectsManager = new JoinEffectsManager(this);
+        miniFootManager = new MiniFootManager(this);
 
         getCommand("lobby").setExecutor(new LobbyCommand(this, spawnManager));
         getCommand("setlobby").setExecutor(new SetLobbyCommand(this, spawnManager));
@@ -259,6 +271,9 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         NPCCommand npcCommand = new NPCCommand(npcManager);
         getCommand("npc").setExecutor(npcCommand);
         getCommand("npc").setTabCompleter(npcCommand);
+        MinifootAdminCommand minifootCommand = new MinifootAdminCommand(this, miniFootManager);
+        getCommand("minifootadmin").setExecutor(minifootCommand);
+        getCommand("minifootadmin").setTabCompleter(minifootCommand);
 
         org.bukkit.Bukkit.getScheduler().cancelTasks(this);
         HandlerList.unregisterAll(this);
@@ -302,6 +317,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
         Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
         Bukkit.getPluginManager().registerEvents(new NPCListener(npcManager), this);
+        Bukkit.getPluginManager().registerEvents(new MinifootSelectionListener(miniFootManager), this);
 
         hologramManager = new HologramManager(this);
         HologramCommand hologramCommand = new HologramCommand(hologramManager);

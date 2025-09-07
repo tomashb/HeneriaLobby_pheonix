@@ -2,6 +2,9 @@
 
 ## [Unreleased] - Développement en cours
 
+## [2.6.0] - Setup du Mini-Foot
+- Ajout des commandes d'administration pour le Mini-Foot.
+
 ## [2.5.0] - Nettoyage du projet
 ### ➖ Suppressions
 - Retrait complet du module de mini-jeu "Mini-Foot" pour se reconcentrer sur les fonctionnalités principales du lobby.

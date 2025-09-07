@@ -1,459 +1,281 @@
-package net.heneria.henerialobby.minifoot;
+package net.heneria.henerialobby.minifoot; // Assurez-vous que le package est correct
 
-import net.heneria.henerialobby.HeneriaLobby;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class MiniFootManager {
-    private final HeneriaLobby plugin;
-    private final File configFile;
-    private final FileConfiguration config;
+public class MiniFootManager implements Listener {
 
-    private Location arenaPos1;
-    private Location arenaPos2;
-    private final Set<UUID> playersInGame = new HashSet<>();
-    private final Map<String, Set<UUID>> teamPlayers = new HashMap<>();
+    private final JavaPlugin plugin;
     private Slime ball;
-    private int blueScore;
-    private int redScore;
+    private final Set<UUID> blueTeam = new HashSet<>();
+    private final Set<UUID> redTeam = new HashSet<>();
+    private final Map<String, Integer> scores = new HashMap<>();
+    private final Map<UUID, Long> pushCooldown = new HashMap<>();
 
-    public MiniFootManager(HeneriaLobby plugin) {
+    // Variables de configuration
+    private boolean enabled;
+    private int scoreToWin;
+    private int maxPlayers;
+    private double pushMultiplier;
+    private Location ballSpawn;
+    private Location blueSpawn;
+    private Location redSpawn;
+    private Cuboid arena;
+    private Cuboid goalBlue;
+    private Cuboid goalRed;
+
+    public MiniFootManager(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.configFile = new File(plugin.getDataFolder(), "minifoot.yml");
-        this.config = YamlConfiguration.loadConfiguration(configFile);
-        reloadArenaPositions();
-
-        // Task to ensure the ball is always present in the arena
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (ball == null || ball.isDead() || !ball.isValid()) {
-                    spawnBall();
-                }
-            }
-        }.runTaskTimer(plugin, 0L, 100L);
-
-        // Main game loop: anti-jump, goal detection and physics
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                Slime ball = getBall();
-                if (ball == null || !ball.isValid() || ball.isDead()) {
-                    return; // Pas de ballon, on arrête tout.
-                }
-
-                if (playersInGame.isEmpty() || arenaPos1 == null || arenaPos2 == null) {
-                    return;
-                }
-
-                // --- 1. LOGIQUE ANTI-SAUT (PRIORITAIRE) ---
-                if (ball.isOnGround() && ball.getVelocity().getY() > 0) {
-                    Vector velocity = ball.getVelocity();
-                    velocity.setY(0);
-                    ball.setVelocity(velocity);
-                }
-
-                // --- 2. LOGIQUE DE DÉTECTION DES BUTS ---
-                Location ballLocation = ball.getLocation();
-
-                if (isLocationInGoal(ballLocation, "red")) {
-                    goalScored("blue");
-                    return;
-                }
-
-                if (isLocationInGoal(ballLocation, "blue")) {
-                    goalScored("red");
-                    return;
-                }
-
-                // --- 3. PHYSIQUE DE GLISSADE ET REBONDS ---
-                Vector velocity = ball.getVelocity();
-                if (velocity.length() < 0.01) {
-                    return;
-                }
-
-                Location nextLocation = ball.getLocation().clone().add(velocity);
-
-                double minX = Math.min(arenaPos1.getX(), arenaPos2.getX());
-                double maxX = Math.max(arenaPos1.getX(), arenaPos2.getX());
-                double minZ = Math.min(arenaPos1.getZ(), arenaPos2.getZ());
-                double maxZ = Math.max(arenaPos1.getZ(), arenaPos2.getZ());
-
-                double bounceFactor = config.getDouble("ball-bounce-factor", -0.8);
-                if (nextLocation.getX() < minX || nextLocation.getX() > maxX) {
-                    velocity.setX(velocity.getX() * bounceFactor);
-                }
-                if (nextLocation.getZ() < minZ || nextLocation.getZ() > maxZ) {
-                    velocity.setZ(velocity.getZ() * bounceFactor);
-                }
-
-                double slideFactor = config.getDouble("ball-slide-factor", 0.98);
-                velocity.setX(velocity.getX() * slideFactor);
-                velocity.setZ(velocity.getZ() * slideFactor);
-
-                ball.setVelocity(velocity);
-            }
-        }.runTaskTimer(plugin, 0L, 1L);
     }
 
-    private void setLocation(String path, Location loc) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("world", loc.getWorld().getName());
-        map.put("x", loc.getBlockX());
-        map.put("y", loc.getBlockY());
-        map.put("z", loc.getBlockZ());
-        config.createSection(path, map);
-        save();
-    }
+    public void loadAndStart() {
+        File file = new File(plugin.getDataFolder(), "minifoot.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        enabled = config.getBoolean("enabled", false);
+        if (!enabled) return;
 
-    public void setArenaPos(int index, Location loc) {
-        config.set("arena.world", loc.getWorld().getName());
-        setLocation("arena.pos" + index, loc);
-        reloadArenaPositions();
-    }
+        scoreToWin = config.getInt("score-to-win", 3);
+        maxPlayers = config.getInt("max-players", 8);
+        pushMultiplier = config.getDouble("ball-push-multiplier", 1.0);
 
-    public void setTeamSpawn(String team, Location loc) {
-        setLocation("teams." + team + ".spawn", loc);
-    }
-
-    public void setTeamGoalPos(String team, int index, Location loc) {
-        setLocation("teams." + team + ".goal.pos" + index, loc);
-    }
-
-    public void setBallSpawn(Location loc) {
-        setLocation("ball-spawn", loc);
-    }
-
-    public void reloadArenaPositions() {
-        this.arenaPos1 = loadLocationFromConfig(plugin, "arena.pos1");
-        this.arenaPos2 = loadLocationFromConfig(plugin, "arena.pos2");
-    }
-
-    public Location getArenaPos1() {
-        return arenaPos1;
-    }
-
-    public Location getArenaPos2() {
-        return arenaPos2;
-    }
-
-    public boolean isInGame(Player player) {
-        return playersInGame.contains(player.getUniqueId());
-    }
-
-    public void addPlayerToTeam(Player player) {
-        int maxPlayers = config.getInt("max-players", 8);
-        if (playersInGame.size() >= maxPlayers) {
-            String msg = plugin.getMessage("minifoot.arena-full")
-                    .replace("%current_players%", String.valueOf(playersInGame.size()))
-                    .replace("%max_players%", String.valueOf(maxPlayers));
-            player.sendMessage(plugin.applyPlaceholders(player, msg));
-            return;
+        String worldName = config.getString("arena.world");
+        World world = Bukkit.getWorld(worldName);
+        if (world != null) {
+            arena = new Cuboid(getLocation(world, config.getConfigurationSection("arena.pos1")),
+                    getLocation(world, config.getConfigurationSection("arena.pos2")));
+            ballSpawn = getLocation(world, config.getConfigurationSection("ball-spawn"));
+            blueSpawn = getLocation(world, config.getConfigurationSection("teams.blue.spawn"));
+            redSpawn = getLocation(world, config.getConfigurationSection("teams.red.spawn"));
+            goalBlue = new Cuboid(getLocation(world, config.getConfigurationSection("teams.blue.goal.pos1")),
+                    getLocation(world, config.getConfigurationSection("teams.blue.goal.pos2")));
+            goalRed = new Cuboid(getLocation(world, config.getConfigurationSection("teams.red.goal.pos1")),
+                    getLocation(world, config.getConfigurationSection("teams.red.goal.pos2")));
         }
-        teamPlayers.computeIfAbsent("blue", k -> new HashSet<>());
-        teamPlayers.computeIfAbsent("red", k -> new HashSet<>());
 
-        String team = teamPlayers.get("blue").size() <= teamPlayers.get("red").size() ? "blue" : "red";
-        teamPlayers.get(team).add(player.getUniqueId());
-        playersInGame.add(player.getUniqueId());
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        spawnBall();
+        startGameLoop();
+        resetScores();
+    }
 
-        String teamColor = team.equals("blue") ? ChatColor.BLUE.toString() : ChatColor.RED.toString();
-        String teamName = team.equals("blue") ? "Bleue" : "Rouge";
-        String joinMsg = plugin.getMessage("minifoot.join-team")
-                .replace("%team_color%", teamColor)
-                .replace("%team_name%", teamName);
-        player.sendMessage(plugin.applyPlaceholders(player, joinMsg));
+    private Location getLocation(World world, ConfigurationSection sec) {
+        if (world == null || sec == null) return null;
+        double x = sec.getDouble("x");
+        double y = sec.getDouble("y");
+        double z = sec.getDouble("z");
+        return new Location(world, x, y, z);
+    }
 
-        player.getInventory().clear();
-        player.getInventory().setArmorContents(null);
+    private void resetScores() {
+        scores.put("blue", 0);
+        scores.put("red", 0);
+        // Mettre à jour le scoreboard pour tous les joueurs en jeu
+    }
+
+    public void spawnBall() {
+        // Logique pour nettoyer les anciens slimes et en créer un nouveau
+        if (ball != null && !ball.isDead()) {
+            ball.remove();
+        }
+        if (ballSpawn == null) return;
+        World world = ballSpawn.getWorld();
+        if (world == null) return;
+        ball = (Slime) world.spawnEntity(ballSpawn, EntityType.SLIME);
+        ball.setSize(1);
+        AttributeInstance speed = ball.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+        if (speed != null) speed.setBaseValue(0.0);
+        ball.setGravity(true);
+        ball.setInvulnerable(true);
+    }
+
+    private void startGameLoop() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (ball == null || !ball.isValid()) {
+                    spawnBall();
+                    return;
+                }
+
+                // Logique Anti-Saut (plus agressive)
+                if (ball.isOnGround()) {
+                    Vector velocity = ball.getVelocity();
+                    if (velocity.getY() > 0) {
+                        velocity.setY(0);
+                        ball.setVelocity(velocity);
+                    }
+                }
+
+                // Logique de détection de but
+                if (goalRed != null && goalRed.contains(ball.getLocation())) {
+                    handleGoal("blue"); // L'équipe BLEUE marque dans le but ROUGE
+                } else if (goalBlue != null && goalBlue.contains(ball.getLocation())) {
+                    handleGoal("red"); // L'équipe ROUGE marque dans le but BLEU
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 1L); // S'exécute toutes les ticks
+    }
+
+    private void handleGoal(String scoringTeam) {
+        int newScore = scores.get(scoringTeam) + 1;
+        scores.put(scoringTeam, newScore);
+
+        // Annoncer le but, etc.
+        for (UUID uuid : blueTeam) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null) p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+        }
+        for (UUID uuid : redTeam) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null) p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+        }
+
+        ball.teleport(ballSpawn);
+        ball.setVelocity(new Vector(0, 0, 0));
+
+        // Téléporter tous les joueurs à leur spawn
+        blueTeam.forEach(uuid -> {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null && blueSpawn != null) p.teleport(blueSpawn);
+        });
+        redTeam.forEach(uuid -> {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null && redSpawn != null) p.teleport(redSpawn);
+        });
+
+        if (newScore >= scoreToWin) {
+            // Gérer la fin de partie
+            // Annoncer le gagnant, attendre 15s, kicker tout le monde, et resetScores()
+            resetScores();
+        } else {
+            // Lancer le compte à rebours de 3s avant de pouvoir bouger
+        }
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (event.getFrom().getBlockX() == event.getTo().getBlockX() && event.getFrom().getBlockZ() == event.getTo().getBlockZ()) return;
+
+        Player player = event.getPlayer();
+        boolean isInsideArena = arena != null && arena.contains(player.getLocation());
+        boolean wasInsideArena = arena != null && arena.contains(event.getFrom());
+
+        // Logique pour rejoindre
+        if (isInsideArena && !wasInsideArena) {
+            // Le joueur entre dans l'arène
+            addPlayer(player);
+        } else if (!isInsideArena && wasInsideArena) {
+            removePlayer(player);
+        }
+
+        // Logique pour pousser le ballon (uniquement si le joueur est en jeu)
+        if (isInGame(player) && ball != null) {
+            if (player.getLocation().distanceSquared(ball.getLocation()) < 2.25) {
+                long now = System.currentTimeMillis();
+                long last = pushCooldown.getOrDefault(player.getUniqueId(), 0L);
+                if (now - last > 500) {
+                    Vector direction = ball.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
+                    direction.multiply(pushMultiplier);
+                    ball.setVelocity(ball.getVelocity().add(direction));
+                    pushCooldown.put(player.getUniqueId(), now);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        // Retirer le joueur de la partie s'il se déconnecte
+        removePlayer(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onArmorRemove(InventoryClickEvent event) {
+        // Bloquer le retrait de l'armure si le joueur est en jeu
+        if (event.getWhoClicked() instanceof Player && isInGame(event.getWhoClicked().getUniqueId())) {
+            if (event.getSlot() >= 36 && event.getSlot() <= 39) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    private void addPlayer(Player p) {
+        if (isInGame(p)) return;
+        if (blueTeam.size() + redTeam.size() >= maxPlayers) return;
+        Set<UUID> team = blueTeam.size() <= redTeam.size() ? blueTeam : redTeam;
+        team.add(p.getUniqueId());
+        boolean blue = team == blueTeam;
+        giveTeamArmor(p, blue);
+        if (blue && blueSpawn != null) {
+            p.teleport(blueSpawn);
+        } else if (!blue && redSpawn != null) {
+            p.teleport(redSpawn);
+        }
+    }
+
+    private void giveTeamArmor(Player p, boolean blue) {
         ItemStack helmet = new ItemStack(Material.LEATHER_HELMET);
         ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE);
-        ItemStack leggings = new ItemStack(Material.LEATHER_LEGGINGS);
+        ItemStack legs = new ItemStack(Material.LEATHER_LEGGINGS);
         ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
+        java.awt.Color awtColor = blue ? java.awt.Color.BLUE : java.awt.Color.RED;
+        org.bukkit.Color color = org.bukkit.Color.fromRGB(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
         LeatherArmorMeta meta;
-        Color color = team.equals("blue") ? Color.BLUE : Color.RED;
         meta = (LeatherArmorMeta) helmet.getItemMeta();
         meta.setColor(color);
         helmet.setItemMeta(meta);
         meta = (LeatherArmorMeta) chest.getItemMeta();
         meta.setColor(color);
         chest.setItemMeta(meta);
-        meta = (LeatherArmorMeta) leggings.getItemMeta();
+        meta = (LeatherArmorMeta) legs.getItemMeta();
         meta.setColor(color);
-        leggings.setItemMeta(meta);
+        legs.setItemMeta(meta);
         meta = (LeatherArmorMeta) boots.getItemMeta();
         meta.setColor(color);
         boots.setItemMeta(meta);
-        player.getInventory().setHelmet(helmet);
-        player.getInventory().setChestplate(chest);
-        player.getInventory().setLeggings(leggings);
-        player.getInventory().setBoots(boots);
-
-        Location spawn = loadLocationFromConfig(plugin, "teams." + team + ".spawn");
-        Location ballSpawn = loadLocationFromConfig(plugin, "ball-spawn");
-        if (spawn != null) {
-            if (ballSpawn != null) {
-                spawn.setDirection(ballSpawn.toVector().subtract(spawn.toVector()));
-            }
-            plugin.getLogger().info("[DEBUG] Téléportation de " + player.getName() + " au spawn de l'équipe " + team + " aux coordonnées : " + spawn.toString());
-            player.teleport(spawn);
-        }
-
-        Bukkit.getScheduler().runTaskLater(plugin, () -> applyMiniFootScoreboard(player), 1L);
+        p.getInventory().setArmorContents(new ItemStack[]{boots, legs, chest, helmet});
     }
 
-    public void removePlayerFromGame(Player player) {
-        for (var entry : teamPlayers.entrySet()) {
-            entry.getValue().remove(player.getUniqueId());
-        }
-        playersInGame.remove(player.getUniqueId());
-
-        plugin.updateDisplays(player);
-
-        player.getInventory().clear();
-        player.getInventory().setArmorContents(null);
-
-        var selector = plugin.getServerSelector();
-        if (selector != null) {
-            player.getInventory().setItem(selector.getSelectorSlot(), selector.getSelectorItem());
-        }
-
-        var visibility = plugin.getVisibilityManager();
-        if (visibility != null && plugin.isLobbyWorld(player.getWorld())) {
-            var mode = visibility.getMode(player);
-            player.getInventory().setItem(visibility.getSlot(), new ItemStack(visibility.getMaterial(mode)));
-            visibility.apply(player);
-            for (var other : Bukkit.getOnlinePlayers()) {
-                if (!other.equals(player)) {
-                    visibility.apply(other);
-                }
-            }
-        }
-
-        player.sendMessage(ChatColor.RED + "Vous avez quitté la partie de mini-foot.");
+    private void removePlayer(Player p) {
+        UUID id = p.getUniqueId();
+        blueTeam.remove(id);
+        redTeam.remove(id);
+        p.getInventory().setArmorContents(null);
     }
 
-    public void spawnBall() {
-        removeOldBalls();
-
-        Location loc = loadLocationFromConfig(plugin, "ball-spawn");
-        if (loc == null) {
-            plugin.getLogger().warning("[DEBUG] Impossible de faire apparaitre le ballon : emplacement non défini.");
-            return;
-        }
-        World world = loc.getWorld();
-        if (world == null) {
-            plugin.getLogger().warning("[DEBUG] Impossible de faire apparaitre le ballon : monde introuvable.");
-            return;
-        }
-        Slime ball = (Slime) world.spawnEntity(loc, EntityType.SLIME);
-
-        ball.setSize(1);
-        ball.setGravity(true);
-        ball.setInvulnerable(true);
-        ball.setSilent(true);
-        ball.setCollidable(true);
-        ball.setMetadata("heneria_football", new FixedMetadataValue(plugin, true));
-
-        AttributeInstance speed = ball.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
-        if (speed != null) {
-            speed.setBaseValue(0.0);
-        }
-
-        this.ball = ball;
-        plugin.getLogger().info("Le ballon de Mini-Foot a été créé avec succès.");
+    public boolean isInGame(Player p) {
+        return isInGame(p.getUniqueId());
     }
 
-    public boolean isTheFootball(Entity entity) {
-        return entity instanceof Slime && entity.hasMetadata("heneria_football");
-    }
-
-    public Slime getBall() {
-        return ball;
-    }
-
-    public double getBallPushMultiplier() {
-        return config.getDouble("ball-push-multiplier", 1.2);
-    }
-
-    public HeneriaLobby getPlugin() {
-        return plugin;
-    }
-
-    public boolean isLocationInGoal(Location location, String teamName) {
-        Location pos1 = loadLocationFromConfig(plugin, "teams." + teamName + ".goal.pos1");
-        Location pos2 = loadLocationFromConfig(plugin, "teams." + teamName + ".goal.pos2");
-        if (pos1 == null || pos2 == null) {
-            plugin.getLogger().warning("[GOAL-DEBUG] Coordonnées du but '" + teamName + "' introuvables.");
-            return false;
-        }
-
-        plugin.getLogger().info("[GOAL-DEBUG] Vérification du but " + teamName + ". Position du ballon: " + location.toVector());
-
-        double minX = Math.min(pos1.getX(), pos2.getX());
-        double maxX = Math.max(pos1.getX(), pos2.getX());
-        double minY = Math.min(pos1.getY(), pos2.getY());
-        double maxY = Math.max(pos1.getY(), pos2.getY());
-        double minZ = Math.min(pos1.getZ(), pos2.getZ());
-        double maxZ = Math.max(pos1.getZ(), pos2.getZ());
-
-        plugin.getLogger().info("[GOAL-DEBUG] Limites du but: X=" + minX + " à " + maxX + ", Y=" + minY + " à " + maxY + ", Z=" + minZ + " à " + maxZ);
-
-        if (!location.getWorld().equals(pos1.getWorld())) {
-            return false;
-        }
-
-        return location.getX() >= minX && location.getX() <= maxX &&
-               location.getY() >= minY && location.getY() <= maxY &&
-               location.getZ() >= minZ && location.getZ() <= maxZ;
-    }
-
-    public void goalScored(String team) {
-        plugin.getLogger().info("[GOAL] But pour l'équipe " + team + " !");
-        if ("blue".equalsIgnoreCase(team)) {
-            blueScore++;
-        } else {
-            redScore++;
-        }
-
-        spawnBall();
-
-        for (Map.Entry<String, Set<UUID>> entry : teamPlayers.entrySet()) {
-            String teamName = entry.getKey();
-            Location spawn = loadLocationFromConfig(plugin, "teams." + teamName + ".spawn");
-            for (UUID uuid : entry.getValue()) {
-                Player p = Bukkit.getPlayer(uuid);
-                if (p != null && spawn != null) {
-                    p.teleport(spawn);
-                    applyMiniFootScoreboard(p);
-                }
-            }
-        }
-    }
-
-    private void applyMiniFootScoreboard(Player player) {
-        var manager = Bukkit.getScoreboardManager();
-        plugin.getLogger().info("[DEBUG] Tentative d'application du scoreboard de mini-foot pour " + player.getName());
-        if (manager == null) {
-            return;
-        }
-        Scoreboard board = manager.getNewScoreboard();
-        Objective objective = board.registerNewObjective("minifoot", "dummy");
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "  MINI-FOOT  ");
-        int scoreToWin = config.getInt("score-to-win", 3);
-        objective.getScore(ChatColor.WHITE + "Objectif : " + ChatColor.GREEN + scoreToWin + " Buts").setScore(4);
-        objective.getScore(ChatColor.BLUE + "Équipe Bleue : " + ChatColor.WHITE + blueScore).setScore(3);
-        objective.getScore(ChatColor.RED + "Équipe Rouge : " + ChatColor.WHITE + redScore).setScore(2);
-        player.setScoreboard(board);
-    }
-
-    /**
-     * Charge un emplacement depuis le fichier minifoot.yml de manière sécurisée.
-     * @param plugin L'instance du plugin principal.
-     * @param path Le chemin vers l'emplacement dans le YAML (ex: "arena.pos1").
-     * @return L'objet Location si le chargement réussit, sinon null.
-     */
-    public Location loadLocationFromConfig(JavaPlugin plugin, String path) {
-        File configFile = new File(plugin.getDataFolder(), "minifoot.yml");
-        FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-
-        // 1. On vérifie que le chemin de base existe dans le fichier
-        if (!config.isSet(path)) {
-            plugin.getLogger().severe("[DEBUG-LOAD] ERREUR: Le chemin '" + path + "' est INTROUVABLE dans minifoot.yml.");
-            return null;
-        }
-
-        // 2. On récupère le nom du monde
-        String worldName = config.getString(path + ".world");
-        if (worldName == null || worldName.isEmpty()) {
-            plugin.getLogger().severe("[DEBUG-LOAD] ERREUR: Le nom du monde est manquant pour le chemin '" + path + "'.");
-            return null;
-        }
-
-        // 3. On essaie de charger le monde via Bukkit
-        World world = Bukkit.getWorld(worldName);
-        if (world == null) {
-            plugin.getLogger().severe("[DEBUG-LOAD] ERREUR: Le monde '" + worldName + "' n'a pas pu être chargé ! Assurez-vous que le nom est correct.");
-            return null;
-        }
-
-        // 4. On vérifie que les coordonnées existent avant de les charger
-        if (!config.isSet(path + ".x") || !config.isSet(path + ".y") || !config.isSet(path + ".z")) {
-            plugin.getLogger().severe("[DEBUG-LOAD] ERREUR: Une ou plusieurs coordonnées (x, y, z) sont manquantes pour le chemin '" + path + "'.");
-            return null;
-        }
-
-        // 5. On charge les coordonnées
-        double x = config.getDouble(path + ".x");
-        double y = config.getDouble(path + ".y");
-        double z = config.getDouble(path + ".z");
-
-        plugin.getLogger().info("[DEBUG-LOAD] L'emplacement pour le chemin '" + path + "' a été chargé avec succès.");
-        return new Location(world, x, y, z);
-    }
-
-    private void save() {
-        try {
-            config.save(configFile);
-        } catch (IOException e) {
-            plugin.getLogger().severe("Could not save minifoot.yml: " + e.getMessage());
-        }
-    }
-
-    private void removeOldBalls() {
-        if (arenaPos1 == null || arenaPos2 == null) {
-            return;
-        }
-
-        World world = arenaPos1.getWorld();
-        if (world == null) {
-            return;
-        }
-
-        double minX = Math.min(arenaPos1.getX(), arenaPos2.getX());
-        double maxX = Math.max(arenaPos1.getX(), arenaPos2.getX());
-        double minY = Math.min(arenaPos1.getY(), arenaPos2.getY());
-        double maxY = Math.max(arenaPos1.getY(), arenaPos2.getY());
-        double minZ = Math.min(arenaPos1.getZ(), arenaPos2.getZ());
-        double maxZ = Math.max(arenaPos1.getZ(), arenaPos2.getZ());
-
-        for (Slime slime : world.getEntitiesByClass(Slime.class)) {
-            Location loc = slime.getLocation();
-            if (loc.getX() >= minX && loc.getX() <= maxX
-                    && loc.getY() >= minY && loc.getY() <= maxY
-                    && loc.getZ() >= minZ && loc.getZ() <= maxZ) {
-                slime.remove();
-            }
-        }
+    public boolean isInGame(UUID uuid) {
+        return blueTeam.contains(uuid) || redTeam.contains(uuid);
     }
 }

@@ -25,6 +25,10 @@ public class ScoreboardManager {
 
     public void updateAll() {
         for (Player player : Bukkit.getOnlinePlayers()) {
+            var miniFoot = plugin.getMiniFootManager();
+            if (miniFoot != null && miniFoot.isInGame(player)) {
+                continue;
+            }
             if (plugin.isLobbyWorld(player.getWorld())) {
                 update(player);
             } else {
@@ -37,6 +41,10 @@ public class ScoreboardManager {
     }
 
     public void update(Player player) {
+        var miniFoot = plugin.getMiniFootManager();
+        if (miniFoot != null && miniFoot.isInGame(player)) {
+            return;
+        }
         var manager = Bukkit.getScoreboardManager();
         if (manager == null) {
             return;

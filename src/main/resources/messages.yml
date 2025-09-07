@@ -8,12 +8,3 @@ visibility-all: "&aVisibilité : Tous les joueurs."
 visibility-vips: "&eVisibilité : VIPs et Staff uniquement."
 visibility-none: "&7Visibilité : Personne."
 
-minifoot:
-  join-team: "&8[&a⚽&8] &7Vous avez rejoint l'équipe %team_color%%team_name%&7 !"
-  goal-scored: "&6&lBUUUUT ! &fL'équipe %team_color%%team_name% &fa marqué ! Le score est de &9%blue_score% &f- &c%red_score%&f."
-  game-won: "&6&lVICTOIRE ! &fL'équipe %team_color%%team_name% &fa remporté la partie ! L'arène sera réinitialisée dans 15 secondes."
-  arena-full: "&c&lCOMPLET ! &7L'arène de Mini-Foot est pleine pour le moment."
-  countdown-title: "&a%seconds_left%..."
-  countdown-subtitle: "&ePréparez-vous !"
-  countdown-go: "&6&lJOUEZ !"
-

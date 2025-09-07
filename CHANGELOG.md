@@ -2,6 +2,10 @@
 
 ## [Unreleased] - Développement en cours
 
+## [2.5.0] - Nettoyage du projet
+### ➖ Suppressions
+- Retrait complet du module de mini-jeu "Mini-Foot" pour se reconcentrer sur les fonctionnalités principales du lobby.
+
 ## [1.10.0] - Titre de Bienvenue et Format de Chat
 - Ajout d'un titre et sous-titre de bienvenue personnalisables à la connexion.
 - Ajout d'un système de formatage du chat.

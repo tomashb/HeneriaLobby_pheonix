@@ -2,6 +2,8 @@
 
 ## [Unreleased] - Développement en cours
 
+- Implémentation du ballon persistant et de son comportement de base.
+
 ## [2.6.0] - Setup du Mini-Foot
 - Ajout des commandes d'administration pour le Mini-Foot.
 

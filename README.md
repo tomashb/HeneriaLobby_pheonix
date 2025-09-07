@@ -50,6 +50,12 @@ HeneriaLobby est un plugin de lobby tout-en-un conçu pour les serveurs Minecraf
 5. Placez-vous sur les points d'apparition des équipes et faites `/minifootadmin setspawn <blue|red>`.
 6. Placez-vous à l'endroit désiré pour la balle et tapez `/minifootadmin setballspawn`.
 
+### Ballon
+
+Le ballon est un **Slime** de taille 1 qui apparaît automatiquement au point défini.
+Il est invulnérable, ne se déplace pas seul et reste plaqué au sol.
+S'il est détruit ou disparaît, il réapparaît au centre après quelques secondes.
+
 ## 📦 Dépendances
 
 * **Requises :**

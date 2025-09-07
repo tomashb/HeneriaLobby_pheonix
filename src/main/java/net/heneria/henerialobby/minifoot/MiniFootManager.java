@@ -215,6 +215,14 @@ public class MiniFootManager {
                 + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ".");
     }
 
+    public boolean isBall(Slime slime) {
+        return ball != null && ball.equals(slime);
+    }
+
+    public double getBallPushMultiplier() {
+        return config.getDouble("ball-push-multiplier", 1.2);
+    }
+
     private void applyMiniFootScoreboard(Player player) {
         var manager = Bukkit.getScoreboardManager();
         plugin.getLogger().info("[DEBUG] Tentative d'application du scoreboard de mini-foot pour " + player.getName());

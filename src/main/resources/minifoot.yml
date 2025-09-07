@@ -3,6 +3,9 @@ enabled: true
 score-to-win: 3 # La partie se termine quand une équipe atteint ce score.
 max-players: 8 # Nombre maximal de joueurs autorisés dans l'arène
 
+# Multiplicateur pour la puissance de frappe du ballon
+ball-push-multiplier: 1.2
+
 arena:
   world: "lobby"
   pos1: {x: 100, y: 64, z: 200}

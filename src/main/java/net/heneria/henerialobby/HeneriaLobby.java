@@ -105,6 +105,16 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
         scoreboardConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "scoreboard.yml"));
         spawnManager = new SpawnManager(this);
+        double voidTeleportY = getConfig().getDouble("void-teleport-y");
+        if (spawnManager.hasSpawn()) {
+            double spawnY = spawnManager.getSpawnLocation().getY();
+            if (spawnY <= voidTeleportY) {
+                getLogger().severe("**************************************************");
+                getLogger().severe("The spawn Y coordinate (" + spawnY + ") is below or equal to the configured void-teleport-y (" + voidTeleportY + ")");
+                getLogger().severe("This may cause an infinite teleport loop. Adjust 'void-teleport-y' or move the spawn location.");
+                getLogger().severe("**************************************************");
+            }
+        }
         serverSelector = new ServerSelector(this);
         lobbyWorlds = new java.util.HashSet<>(getConfig().getStringList("lobby-worlds"));
         joinEffectsManager = new JoinEffectsManager(this);
@@ -261,6 +271,16 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
         scoreboardConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "scoreboard.yml"));
         spawnManager = new SpawnManager(this);
+        double voidTeleportY = getConfig().getDouble("void-teleport-y");
+        if (spawnManager.hasSpawn()) {
+            double spawnY = spawnManager.getSpawnLocation().getY();
+            if (spawnY <= voidTeleportY) {
+                getLogger().severe("**************************************************");
+                getLogger().severe("The spawn Y coordinate (" + spawnY + ") is below or equal to the configured void-teleport-y(" + voidTeleportY + ")");
+                getLogger().severe("This may cause an infinite teleport loop. Adjust 'void-teleport-y' or move the spawn location.");
+                getLogger().severe("**************************************************");
+            }
+        }
         serverSelector = new ServerSelector(this);
         lobbyWorlds = new java.util.HashSet<>(getConfig().getStringList("lobby-worlds"));
         joinEffectsManager = new JoinEffectsManager(this);

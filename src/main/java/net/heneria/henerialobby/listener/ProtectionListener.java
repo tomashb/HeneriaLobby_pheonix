@@ -49,7 +49,7 @@ public class ProtectionListener implements Listener {
     }
 
     private boolean canBypass(Player player) {
-        return player.isOp() || player.hasPermission("heneria.lobby.bypass.protection");
+        return player.getGameMode() == GameMode.CREATIVE || player.hasPermission("heneria.lobby.bypass.protection");
     }
 
     @EventHandler

@@ -7,4 +7,5 @@ player-only: "&cCette commande ne peut être exécutée que par un joueur."
 visibility-all: "&aVisibilité : Tous les joueurs."
 visibility-vips: "&eVisibilité : VIPs et Staff uniquement."
 visibility-none: "&7Visibilité : Personne."
+visibility-cooldown: "&cVeuillez patienter encore &e%seconds% &cseconde(s)."
 

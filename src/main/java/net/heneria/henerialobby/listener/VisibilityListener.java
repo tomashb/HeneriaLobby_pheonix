@@ -5,6 +5,8 @@ import net.heneria.henerialobby.visibility.VisibilityManager;
 import net.heneria.henerialobby.visibility.VisibilityManager.Mode;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -14,6 +16,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class VisibilityListener implements Listener {
 
@@ -23,6 +31,8 @@ public class VisibilityListener implements Listener {
     private final Material matAll;
     private final Material matVips;
     private final Material matNone;
+    private final long cooldown;
+    private final Map<UUID, Long> lastUse = new HashMap<>();
 
     public VisibilityListener(HeneriaLobby plugin, VisibilityManager manager) {
         this.plugin = plugin;
@@ -31,10 +41,23 @@ public class VisibilityListener implements Listener {
         this.matAll = manager.getMaterial(Mode.ALL);
         this.matVips = manager.getMaterial(Mode.VIPS);
         this.matNone = manager.getMaterial(Mode.NONE);
+        this.cooldown = manager.getCooldown();
     }
 
-    private ItemStack createItem(Mode mode) {
-        return new ItemStack(manager.getMaterial(mode));
+    private ItemStack createItem(Player player, Mode mode) {
+        ItemStack item = new ItemStack(manager.getMaterial(mode));
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', plugin.applyPlaceholders(player, manager.getItemName())));
+            var lore = manager.getItemLore();
+            if (!lore.isEmpty()) {
+                meta.setLore(lore.stream()
+                        .map(line -> ChatColor.translateAlternateColorCodes('&', plugin.applyPlaceholders(player, line)))
+                        .collect(Collectors.toList()));
+            }
+            item.setItemMeta(meta);
+        }
+        return item;
     }
 
     @EventHandler
@@ -44,7 +67,7 @@ public class VisibilityListener implements Listener {
             return;
         }
         Mode mode = manager.getMode(player);
-        player.getInventory().setItem(slot, createItem(mode));
+        player.getInventory().setItem(slot, createItem(player, mode));
         manager.apply(player);
         for (var other : Bukkit.getOnlinePlayers()) {
             if (!other.equals(player)) {
@@ -59,6 +82,15 @@ public class VisibilityListener implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         var player = event.getPlayer();
         if (player.getInventory().getHeldItemSlot() != slot) return;
+        long now = System.currentTimeMillis();
+        long last = lastUse.getOrDefault(player.getUniqueId(), 0L);
+        if (now - last < cooldown) {
+            long remaining = (cooldown - (now - last)) / 1000L + 1;
+            String msg = plugin.getMessage("visibility-cooldown").replace("%seconds%", String.valueOf(remaining));
+            player.sendMessage(plugin.applyPlaceholders(player, msg));
+            event.setCancelled(true);
+            return;
+        }
         ItemStack item = event.getItem();
         if (item == null) return;
         Material type = item.getType();
@@ -72,7 +104,8 @@ public class VisibilityListener implements Listener {
         };
 
         manager.setMode(player, next);
-        player.getInventory().setItem(slot, createItem(next));
+        player.getInventory().setItem(slot, createItem(player, next));
+        lastUse.put(player.getUniqueId(), now);
         manager.apply(player);
         for (var other : Bukkit.getOnlinePlayers()) {
             if (!other.equals(player)) {

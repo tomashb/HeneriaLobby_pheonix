@@ -12,6 +12,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import java.time.Duration;
@@ -23,6 +24,14 @@ public class InterfaceChatListener implements Listener {
 
     public InterfaceChatListener(HeneriaLobby plugin) {
         this.plugin = plugin;
+    }
+
+    private Component parseComponent(MiniMessage mm, String text) {
+        try {
+            return mm.deserialize(text);
+        } catch (Exception ex) {
+            return LegacyComponentSerializer.legacyAmpersand().deserialize(text);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -45,13 +54,7 @@ public class InterfaceChatListener implements Listener {
             } catch (Exception ex) {
                 plugin.getLogger().warning("Placeholder error in main title: " + ex.getMessage());
             }
-            Component mainComp;
-            try {
-                mainComp = mm.deserialize(mainText);
-            } catch (Exception ex) {
-                plugin.getLogger().warning("Failed to parse main title: " + mainText);
-                return;
-            }
+            Component mainComp = parseComponent(mm, mainText);
             Duration mainIn = Duration.ofMillis((long) (main.getDouble("fade-in", 0D) * 1000));
             Duration mainStay = Duration.ofMillis((long) (main.getDouble("stay", 0D) * 1000));
             Duration mainOut = Duration.ofMillis((long) (main.getDouble("fade-out", 0D) * 1000));
@@ -67,13 +70,7 @@ public class InterfaceChatListener implements Listener {
                 } catch (Exception ex) {
                     plugin.getLogger().warning("Placeholder error in subtitle: " + ex.getMessage());
                 }
-                Component subComp;
-                try {
-                    subComp = mm.deserialize(text);
-                } catch (Exception ex) {
-                    plugin.getLogger().warning("Failed to parse subtitle: " + text);
-                    continue;
-                }
+                Component subComp = parseComponent(mm, text);
                 double fi = map.get("fade-in") instanceof Number ? ((Number) map.get("fade-in")).doubleValue() : 0D;
                 double st = map.get("stay") instanceof Number ? ((Number) map.get("stay")).doubleValue() : 0D;
                 double fo = map.get("fade-out") instanceof Number ? ((Number) map.get("fade-out")).doubleValue() : 0D;

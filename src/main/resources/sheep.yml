@@ -1,5 +1,8 @@
-# Liste des emplacements des moutons de fête.
-sheep-locations:
-  # Format: 'world;x;y;z;yaw;pitch'
-  - 'lobby;15.5;68.0;-40.5;0;0'
-  - 'lobby;22.5;69.0;-35.5;0;0'
+# Fichier géré par la commande /lobbyadmin sheep setspawnregion
+# Chaque entrée est une zone où les moutons peuvent apparaître.
+spawn-regions:
+  place-principale:
+    world: "lobby"
+    pos1: {x: 100, y: 64, z: 200}
+    pos2: {x: 200, y: 80, z: 300}
+

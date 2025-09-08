@@ -92,7 +92,13 @@ holograms:
 
 party-sheep:
   enabled: true
-  respawn-delay-seconds: 5
-  launch-power-vertical: 1.5
-  launch-power-horizontal: 0.5
-  color-change-ticks: 10
+  max-sheep-count: 10
+  spawn-check-interval-seconds: 30
+  respawn-delay-seconds: 10
+  hit-effects:
+    sound: "ENTITY_CHICKEN_EGG"
+    particle: "NOTE"
+  launch-effects:
+    sound: "ENTITY_GENERIC_EXPLODE"
+    particle: "EXPLOSION"
+    launch-power: 1.5

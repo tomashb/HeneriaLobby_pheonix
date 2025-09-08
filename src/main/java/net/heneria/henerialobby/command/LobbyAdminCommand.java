@@ -7,6 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import net.heneria.henerialobby.sheep.Selection;
+
 public class LobbyAdminCommand implements CommandExecutor {
 
     private final HeneriaLobby plugin;
@@ -49,33 +51,29 @@ public class LobbyAdminCommand implements CommandExecutor {
             return true;
         }
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " sheep <add|remove|list> [radius]");
+            sender.sendMessage(ChatColor.RED + "Usage: /" + label + " sheep <setspawnregion|listregions> [name]");
             return true;
         }
         String sub = args[1].toLowerCase();
         switch (sub) {
-            case "add":
-                plugin.getPartySheepManager().addSheep(player.getLocation());
-                sender.sendMessage(ChatColor.GREEN + "Mouton de fête ajouté.");
-                return true;
-            case "remove":
-                double radius = 5.0;
-                if (args.length >= 3) {
-                    try {
-                        radius = Double.parseDouble(args[2]);
-                    } catch (NumberFormatException ex) {
-                        sender.sendMessage(ChatColor.RED + "Rayon invalide.");
-                        return true;
-                    }
+            case "setspawnregion":
+                if (args.length < 3) {
+                    sender.sendMessage(ChatColor.RED + "Usage: /" + label + " sheep setspawnregion <name>");
+                    return true;
                 }
-                int removed = plugin.getPartySheepManager().removeSheep(player.getLocation(), radius);
-                sender.sendMessage(ChatColor.GREEN + String.valueOf(removed) + " mouton(s) supprimé(s).");
+                Selection sel = plugin.getPartySheepManager().getSelection(player);
+                if (sel == null || !sel.isComplete()) {
+                    sender.sendMessage(ChatColor.RED + "Sélection incomplète. Utilisez la hache en bois pour définir deux positions.");
+                    return true;
+                }
+                plugin.getPartySheepManager().addSpawnRegion(args[2], sel.getPos1(), sel.getPos2());
+                sender.sendMessage(ChatColor.GREEN + "Zone de spawn ajoutée : " + args[2]);
                 return true;
-            case "list":
-                plugin.getPartySheepManager().listSheeps(sender);
+            case "listregions":
+                plugin.getPartySheepManager().listRegions(sender);
                 return true;
             default:
-                sender.sendMessage(ChatColor.RED + "Usage: /" + label + " sheep <add|remove|list> [radius]");
+                sender.sendMessage(ChatColor.RED + "Usage: /" + label + " sheep <setspawnregion|listregions> [name]");
                 return true;
         }
     }

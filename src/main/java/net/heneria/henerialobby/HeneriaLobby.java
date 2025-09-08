@@ -28,6 +28,7 @@ import net.heneria.henerialobby.hologram.HologramManager;
 import net.heneria.henerialobby.npc.NPCManager;
 import net.heneria.henerialobby.npc.NPCCommand;
 import net.heneria.henerialobby.npc.NPCListener;
+import net.heneria.henerialobby.sheep.PartySheepManager;
 import com.masecla.api.HeadDatabaseAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -62,6 +63,7 @@ public class HeneriaLobby extends JavaPlugin {
     private Announcer announcer;
     private HologramManager hologramManager;
     private NPCManager npcManager;
+    private PartySheepManager partySheepManager;
     private java.util.Set<String> lobbyWorlds;
     private final java.util.Map<String, Command> customCommands = new java.util.HashMap<>();
     private HeadDatabaseAPI hdbApi = null;
@@ -98,6 +100,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         saveResourceIfNotExists("holograms.yml");
         saveResourceIfNotExists("npcs.yml");
         saveResourceIfNotExists("npc-actions.yml");
+        saveResourceIfNotExists("sheep.yml");
         messages = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "messages.yml"));
         scoreboardConfig = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "scoreboard.yml"));
         spawnManager = new SpawnManager(this);
@@ -162,6 +165,10 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
         Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
 
+        if (getConfig().getBoolean("party-sheep.enabled", true)) {
+            partySheepManager = new PartySheepManager(this);
+        }
+
         if (getConfig().getBoolean("scoreboard.enabled", true)) {
             scoreboardManager = new ScoreboardManager(this, scoreboardConfig);
             long interval = getConfig().getLong("scoreboard.update-interval", 40L);
@@ -197,6 +204,10 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         if (npcManager != null) {
             npcManager.saveAll();
             npcManager.removeAll();
+        }
+        if (partySheepManager != null) {
+            partySheepManager.removeAll();
+            partySheepManager.saveSheeps();
         }
       }
 
@@ -364,6 +375,10 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
 
     public VisibilityManager getVisibilityManager() {
         return visibilityManager;
+    }
+
+    public PartySheepManager getPartySheepManager() {
+        return partySheepManager;
     }
 
     public SpawnManager getSpawnManager() {

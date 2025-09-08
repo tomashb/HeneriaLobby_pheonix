@@ -219,7 +219,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         }
         if (partySheepManager != null) {
             partySheepManager.removeAll();
-            partySheepManager.saveSheeps();
+            partySheepManager.saveRegions();
         }
       }
 

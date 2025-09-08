@@ -69,7 +69,7 @@ public class LobbyAdminCommand implements CommandExecutor {
                     }
                 }
                 int removed = plugin.getPartySheepManager().removeSheep(player.getLocation(), radius);
-                sender.sendMessage(ChatColor.GREEN + removed + " mouton(s) supprimé(s).");
+                sender.sendMessage(ChatColor.GREEN + String.valueOf(removed) + " mouton(s) supprimé(s).");
                 return true;
             case "list":
                 plugin.getPartySheepManager().listSheeps(sender);

@@ -29,52 +29,6 @@ HeneriaLobby est un plugin de lobby tout-en-un conçu pour les serveurs Minecraf
 | ... | `heneria.lobby.chatcolor` | Permet d'utiliser les couleurs dans le chat. |
 | ... | `heneria.lobby.joineffect.<nom>` | Donne l'effet de connexion `<nom>`. |
 
-## 🎮 Mini-Jeu : Mini-Foot
-
-### Commandes d'administration
-
-| Commande | Permission | Description |
-| :--- | :--- | :--- |
-| `/minifootadmin setarena` | `heneria.lobby.admin.minifoot` | Définit la zone de l'arène. |
-| `/minifootadmin setgoal <blue|red>` | `heneria.lobby.admin.minifoot` | Définit la zone de but bleue ou rouge. |
-| `/minifootadmin setspawn <blue|red>` | `heneria.lobby.admin.minifoot` | Définit le point de spawn d'une équipe. |
-| `/minifootadmin setballspawn` | `heneria.lobby.admin.minifoot` | Définit l'apparition de la balle. |
-| `/minifootadmin help` | `heneria.lobby.admin.minifoot` | Affiche l'aide des commandes. |
-
-### Configuration de l'arène
-
-1. Donnez-vous une **hache en bois**.
-2. Sélectionnez deux coins de la zone avec un clic gauche et un clic droit.
-3. Exécutez `/minifootadmin setarena` pour enregistrer l'arène.
-4. Sélectionnez chaque zone de but puis utilisez `/minifootadmin setgoal <blue|red>`.
-5. Placez-vous sur les points d'apparition des équipes et faites `/minifootadmin setspawn <blue|red>`.
-6. Placez-vous à l'endroit désiré pour la balle et tapez `/minifootadmin setballspawn`.
-
-### Ballon
-
-Le ballon est un **Slime** de taille 1 qui apparaît automatiquement au point défini.
-Les joueurs peuvent le pousser en courant dedans : il glisse progressivement sur le sol et rebondit sur les murs de l'arène.
-S'il est détruit ou disparaît, il réapparaît au centre après quelques secondes.
-
-### Rejoindre et quitter une partie
-
-Marchez simplement dans l'arène pour rejoindre le match. Vous serez automatiquement placé dans l'équipe ayant le moins de joueurs (maximum 8 joueurs) et équipé d'une armure en cuir aux couleurs de votre équipe.
-
-Pour quitter la partie, sortez de la zone de l'arène : votre inventaire est nettoyé, les items du lobby vous sont rendus et le scoreboard du lobby réapparaît.
-
-### Règles du jeu
-
-* Deux équipes s'affrontent et tentent de marquer dans le but adverse.
-* Un but renvoie tous les joueurs à leur spawn et gèle la partie pendant 3 secondes.
-* La première équipe à atteindre **3 buts** remporte le match.
-* Une annonce de victoire est affichée et, 15 secondes plus tard, tous les joueurs sont expulsés de l'arène.
-
-### Configuration `minifoot.yml`
-
-Le fichier `minifoot.yml` contient les positions de l'arène, des buts, des spawns ainsi que la configuration du ballon :
-
-* `ball.push-force` – force appliquée au ballon lors d'une poussée (par défaut `1.0`).
-* `ball.friction` – coefficient de friction appliqué chaque tick pour ralentir le ballon (par défaut `0.96`).
 
 ## 📦 Dépendances
 

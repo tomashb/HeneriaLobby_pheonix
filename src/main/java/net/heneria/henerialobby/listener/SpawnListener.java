@@ -29,6 +29,7 @@ public class SpawnListener implements Listener {
         if (!spawnManager.hasSpawn()) {
             return;
         }
+        // Use strict comparison to avoid endless teleport loops when equal
         if (event.getTo() != null && event.getTo().getY() < plugin.getConfig().getDouble("void-teleport-y")) {
             spawnManager.teleport(event.getPlayer());
             event.getPlayer().sendMessage(plugin.applyPlaceholders(event.getPlayer(), plugin.getMessage("spawn-teleport")));

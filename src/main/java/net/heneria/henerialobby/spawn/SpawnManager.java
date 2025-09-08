@@ -73,5 +73,9 @@ public class SpawnManager {
     public boolean hasSpawn() {
         return spawnLocation != null;
     }
+
+    public Location getSpawnLocation() {
+        return spawnLocation;
+    }
 }
 

@@ -160,7 +160,7 @@ public class PartySheepManager {
         }
         sheep.setVelocity(new Vector((Math.random() - 0.5) * 2 * launchHorizontal, launchVertical, (Math.random() - 0.5) * 2 * launchHorizontal));
         Location loc = sheep.getLocation();
-        loc.getWorld().spawnParticle(org.bukkit.Particle.EXPLOSION_LARGE, loc.add(0, 0.5, 0), 1);
+        loc.getWorld().spawnParticle(org.bukkit.Particle.EXPLOSION, loc.add(0, 0.5, 0), 1);
         loc.getWorld().playSound(loc, org.bukkit.Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f);
         sheep.setInvisible(true);
         Bukkit.getScheduler().runTaskLater(plugin, () -> {

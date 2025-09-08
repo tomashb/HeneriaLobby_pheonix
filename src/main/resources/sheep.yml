@@ -1,0 +1,5 @@
+# Liste des emplacements des moutons de fête.
+sheep-locations:
+  # Format: 'world;x;y;z;yaw;pitch'
+  - 'lobby;15.5;68.0;-40.5;0;0'
+  - 'lobby;22.5;69.0;-35.5;0;0'

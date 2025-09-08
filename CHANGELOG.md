@@ -2,8 +2,12 @@
 
 ## [Unreleased] - Développement en cours
 
-## [2.6.0] - Setup du Mini-Foot
-- Ajout des commandes d'administration pour le Mini-Foot.
+## [2.6.0] - Ajout des Moutons de Fête
+### ✨ Ajouts
+- Ajout des "Moutons de Fête" interactifs (style Epicube).
+- Les moutons changent de couleur et sont projetés en l'air lorsqu'ils sont frappés.
+- Ajout des commandes `/lobbyadmin sheep` pour gérer les moutons.
+- Ajout de la permission `heneria.lobby.admin.sheep`.
 
 ## [2.5.0] - Nettoyage du projet
 ### ➖ Suppressions

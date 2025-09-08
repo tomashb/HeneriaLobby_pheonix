@@ -13,6 +13,7 @@ HeneriaLobby est un plugin de lobby tout-en-un conçu pour les serveurs Minecraf
 * **Commandes Personnalisées :** Définissez vos propres commandes d'information (ex: `/discord`, `/site`) via un simple fichier de configuration.
 * **Effets de Connexion :** Attribuez des effets cosmétiques (sons, particules) aux joueurs à leur connexion en fonction de leurs permissions.
 * **Et bien plus :** Titre de bienvenue, format de chat, intégrations PNJ...
+* **Moutons de Fête :** Des moutons "disco" qui changent de couleur et s'envolent lorsqu'on les frappe !
 
 ## ⚙️ Commandes et Permissions
 
@@ -24,6 +25,7 @@ HeneriaLobby est un plugin de lobby tout-en-un conçu pour les serveurs Minecraf
 | `/parkouradmin` | `heneria.lobby.admin.parkour` | Gère les parcours de parkour. |
 | `/parkour` | (Aucune) | Commandes pour le parkour. |
 | `/lobbyadmin reload` | `heneria.lobby.admin.reload` | Recharge les configurations. |
+| `/lobbyadmin sheep` | `heneria.lobby.admin.sheep` | Gère la création et la suppression des Moutons de Fête. |
 | ... | `heneria.lobby.bypass.protection` | Ignore les protections du lobby. |
 | ... | `heneria.lobby.canbeseen` | Permet d'être vu en mode VIP. |
 | ... | `heneria.lobby.chatcolor` | Permet d'utiliser les couleurs dans le chat. |

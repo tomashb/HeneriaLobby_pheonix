@@ -48,3 +48,6 @@ permissions:
   heneria.lobby.admin.npc:
     description: "Permet de gérer les PNJ"
     default: op
+  heneria.lobby.admin.sheep:
+    description: "Permet de gérer les Moutons de Fête"
+    default: op

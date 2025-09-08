@@ -17,6 +17,7 @@ import net.heneria.henerialobby.listener.LaunchpadListener;
 import net.heneria.henerialobby.listener.JoinLeaveListener;
 import net.heneria.henerialobby.listener.JoinEffectsListener;
 import net.heneria.henerialobby.listener.InterfaceChatListener;
+import net.heneria.henerialobby.listener.DebugMoveListener;
 import net.heneria.henerialobby.scoreboard.ScoreboardManager;
 import net.heneria.henerialobby.tablist.TablistManager;
 import net.heneria.henerialobby.selector.ServerSelector;
@@ -164,6 +165,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         }
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
         Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new DebugMoveListener(this), this);
 
         if (getConfig().getBoolean("party-sheep.enabled", true)) {
             partySheepManager = new PartySheepManager(this);
@@ -312,6 +314,7 @@ if (hdbPlugin != null && hdbPlugin instanceof HeadDatabaseAPI) {
         }
         Bukkit.getPluginManager().registerEvents(new JoinEffectsListener(joinEffectsManager), this);
         Bukkit.getPluginManager().registerEvents(new InterfaceChatListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new DebugMoveListener(this), this);
         Bukkit.getPluginManager().registerEvents(new NPCListener(npcManager), this);
 
         hologramManager = new HologramManager(this);

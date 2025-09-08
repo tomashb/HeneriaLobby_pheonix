@@ -45,6 +45,11 @@ player-experience:
   player-visibility:
     enabled: true
     item-slot: 8
+    cooldown-seconds: 3 # Temps de rechargement entre chaque utilisation
+    item-name: '&aVisibilité des Joueurs &7(Clic Droit)'
+    item-lore:
+      - '&7Cliquez pour changer les joueurs'
+      - '&7que vous voyez dans le lobby.'
     # Matériau de l'item pour chaque état : TOUS, VIPs, PERSONNE
     item-all: LIME_DYE
     item-vips: YELLOW_DYE
